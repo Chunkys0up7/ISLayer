@@ -1,0 +1,67 @@
+process_id: "Process_LoanOrigination"
+pipeline_version: "0.1.0-demo"
+ingestion_id: "ING-20260409-001"
+started_at: "2026-04-09T00:00:00Z"
+completed_at: "2026-04-09T00:00:05Z"
+status: "completed"
+source_file: "bpmn/loan-origination.bpmn"
+source_file_hash: "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+
+steps:
+  - step: "bpmn_parse"
+    status: "success"
+    started_at: "2026-04-09T00:00:00Z"
+    completed_at: "2026-04-09T00:00:01Z"
+    details:
+      elements_found:
+        tasks: 7
+        gateways: 2
+        events: 4
+        sequence_flows: 13
+        data_objects: 4
+        lanes: 3
+
+  - step: "capsule_generation"
+    status: "success"
+    started_at: "2026-04-09T00:00:01Z"
+    completed_at: "2026-04-09T00:00:03Z"
+    details:
+      capsules_generated: 10
+      capsules_with_gaps: 2
+
+  - step: "intent_generation"
+    status: "success"
+    started_at: "2026-04-09T00:00:03Z"
+    completed_at: "2026-04-09T00:00:04Z"
+    details:
+      intents_generated: 10
+
+  - step: "contract_generation"
+    status: "success"
+    started_at: "2026-04-09T00:00:04Z"
+    completed_at: "2026-04-09T00:00:04Z"
+    details:
+      contracts_generated: 10
+      binding_status: "all_unbound"
+
+  - step: "manifest_creation"
+    status: "success"
+    started_at: "2026-04-09T00:00:04Z"
+    completed_at: "2026-04-09T00:00:05Z"
+    details:
+      triples_linked: 10
+      validation_result: "skipped"
+
+  - step: "graph_generation"
+    status: "success"
+    started_at: "2026-04-09T00:00:05Z"
+    completed_at: "2026-04-09T00:00:05Z"
+    details:
+      nodes: 13
+      edges: 13
+
+warnings:
+  - "Gateway elements mapped with bpmn_task_type 'serviceTask' in capsules (schema does not support 'exclusiveGateway' as task type)"
+  - "Boundary event CAP-LO-TMO-001 mapped with bpmn_task_type 'sendTask' (schema does not support 'boundaryEvent' as task type)"
+
+errors: []

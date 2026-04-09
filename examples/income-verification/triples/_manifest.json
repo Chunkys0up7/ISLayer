@@ -1,0 +1,71 @@
+{
+  "process_id": "Process_IncomeVerification",
+  "process_name": "Income Verification",
+  "version": "1.0.0",
+  "triples": [
+    {
+      "capability_id": "ICT-IV-REQ-001",
+      "directory": "receive-request",
+      "bpmn_element_id": "Task_ReceiveRequest",
+      "element_type": "receiveTask",
+      "binding_status": "unbound"
+    },
+    {
+      "capability_id": "ICT-IV-CLS-001",
+      "directory": "classify-employment",
+      "bpmn_element_id": "Task_ClassifyEmployment",
+      "element_type": "businessRuleTask",
+      "binding_status": "unbound"
+    },
+    {
+      "capability_id": "ICT-IV-W2V-001",
+      "directory": "verify-w2",
+      "bpmn_element_id": "Task_VerifyW2",
+      "element_type": "serviceTask",
+      "binding_status": "unbound"
+    },
+    {
+      "capability_id": "ICT-IV-SEI-001",
+      "directory": "verify-self-employment",
+      "bpmn_element_id": "Task_VerifySelfEmployment",
+      "element_type": "serviceTask",
+      "binding_status": "unbound"
+    },
+    {
+      "capability_id": "ICT-IV-QAL-001",
+      "directory": "calc-qualifying",
+      "bpmn_element_id": "Task_CalcQualifying",
+      "element_type": "businessRuleTask",
+      "binding_status": "unbound"
+    },
+    {
+      "capability_id": "ICT-IV-NTF-001",
+      "directory": "emit-verified",
+      "bpmn_element_id": "Task_EmitVerified",
+      "element_type": "sendTask",
+      "binding_status": "unbound"
+    }
+  ],
+  "decisions": [
+    {
+      "capability_id": "ICT-IV-DEC-001",
+      "directory": "../decisions/employment-type",
+      "bpmn_element_id": "Gateway_EmploymentType",
+      "element_type": "exclusiveGateway",
+      "binding_status": "unbound"
+    },
+    {
+      "capability_id": "ICT-IV-DEC-002",
+      "directory": "../decisions/variance-threshold",
+      "bpmn_element_id": "Gateway_Variance",
+      "element_type": "exclusiveGateway",
+      "binding_status": "unbound"
+    }
+  ],
+  "stats": {
+    "total_triples": 8,
+    "bound": 0,
+    "unbound": 8,
+    "binding_coverage": "0%"
+  }
+}

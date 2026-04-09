@@ -1,0 +1,140 @@
+bpmn_file: property-appraisal.bpmn
+process_id: Process_PropertyAppraisal
+process_name: Property Appraisal
+version: "1.0.0"
+status: draft
+source_format: BPMN 2.0 XML
+exported_from: MDA Intent Engine Pipeline
+exported_date: "2026-04-09"
+sha256: "sha256:placeholder_pending_pipeline_hash_generation"
+
+description: >
+  End-to-end property appraisal subprocess within mortgage loan origination.
+  Covers ordering the appraisal through an AMC, receiving and validating the
+  report for USPAP compliance, assessing property value against comparable
+  sales, and routing based on LTV ratio thresholds.
+
+lanes:
+  - id: Lane_LoanProcessing
+    name: Loan Processing
+    description: Loan officer activities for ordering and finalizing appraisals
+  - id: Lane_AppraisalManagement
+    name: Appraisal Management
+    description: AMC coordination, report validation, and value assessment
+  - id: Lane_UnderwritingReview
+    name: Underwriting Review
+    description: Manual underwriter review for LTV exceptions
+
+tasks:
+  - id: Task_OrderAppraisal
+    name: Order Appraisal
+    type: sendTask
+    lane: Lane_LoanProcessing
+    triple_id: PA-ORD-001
+  - id: Task_ReceiveReport
+    name: Receive Appraisal Report
+    type: receiveTask
+    lane: Lane_AppraisalManagement
+    triple_id: PA-RCV-001
+  - id: Task_ValidateCompleteness
+    name: Validate Appraisal Completeness
+    type: businessRuleTask
+    lane: Lane_AppraisalManagement
+    triple_id: PA-VAL-001
+  - id: Task_RequestRevision
+    name: Request Appraisal Revision
+    type: sendTask
+    lane: Lane_AppraisalManagement
+    triple_id: PA-REV-001
+  - id: Task_AssessValue
+    name: Assess Property Value
+    type: serviceTask
+    lane: Lane_AppraisalManagement
+    triple_id: PA-ASV-001
+  - id: Task_ManualReview
+    name: Flag for Manual Review
+    type: userTask
+    lane: Lane_UnderwritingReview
+    triple_id: PA-MRV-001
+  - id: Task_EmitComplete
+    name: Emit Appraisal Complete Event
+    type: sendTask
+    lane: Lane_LoanProcessing
+    triple_id: PA-NTF-001
+
+gateways:
+  - id: Gateway_Complete
+    name: "Complete?"
+    type: exclusiveGateway
+    decision_triple_id: PA-DEC-001
+  - id: Gateway_LTV
+    name: "Value Within LTV?"
+    type: exclusiveGateway
+    decision_triple_id: PA-DEC-002
+
+events:
+  - id: Start_Ordered
+    name: Appraisal Ordered
+    type: startEvent
+  - id: End_Complete
+    name: Appraisal Complete
+    type: endEvent
+  - id: End_ManualReview
+    name: Manual Review Required
+    type: endEvent
+
+data_objects:
+  - id: DataObject_PropertyDetails
+    name: property_details
+    description: Property address, type, legal description, and loan parameters
+  - id: DataObject_AppraisalReport
+    name: appraisal_report
+    description: USPAP-compliant appraisal report from the AMC or appraiser
+  - id: DataObject_LTVCalculation
+    name: ltv_calculation
+    description: Loan-to-value ratio calculation results
+  - id: DataObject_ComparableSales
+    name: comparable_sales
+    description: Comparable property sales data used for value reconciliation
+
+sequence_flows:
+  - id: Flow_Start_to_Order
+    from: Start_Ordered
+    to: Task_OrderAppraisal
+  - id: Flow_Order_to_Receive
+    from: Task_OrderAppraisal
+    to: Task_ReceiveReport
+  - id: Flow_Receive_to_Validate
+    from: Task_ReceiveReport
+    to: Task_ValidateCompleteness
+  - id: Flow_Validate_to_Gateway
+    from: Task_ValidateCompleteness
+    to: Gateway_Complete
+  - id: Flow_Complete_Yes
+    from: Gateway_Complete
+    to: Task_AssessValue
+    condition: "complete"
+  - id: Flow_Complete_No
+    from: Gateway_Complete
+    to: Task_RequestRevision
+    condition: "incomplete"
+  - id: Flow_Revision_to_Receive
+    from: Task_RequestRevision
+    to: Task_ReceiveReport
+  - id: Flow_Assess_to_LTV
+    from: Task_AssessValue
+    to: Gateway_LTV
+  - id: Flow_LTV_Within
+    from: Gateway_LTV
+    to: Task_EmitComplete
+    condition: "within LTV"
+  - id: Flow_LTV_Exceeds
+    from: Gateway_LTV
+    to: Task_ManualReview
+    condition: "exceeds LTV"
+  - id: Flow_Emit_to_End
+    from: Task_EmitComplete
+    to: End_Complete
+  - id: Flow_Manual_to_End
+    from: Task_ManualReview
+    to: End_ManualReview

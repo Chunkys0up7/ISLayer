@@ -1,0 +1,26 @@
+process_id: Process_PropertyAppraisal
+process_name: Property Appraisal
+
+entries:
+  - version: "1.0.0"
+    date: "2026-04-09"
+    author: "mda-pipeline"
+    type: "initial-ingestion"
+    description: >
+      Initial ingestion of the Property Appraisal BPMN process.
+      Generated 7 task triples, 2 decision triples, process graph,
+      and supporting metadata. All triples are in draft status with
+      unbound contracts pending system integration.
+    triples_affected:
+      - PA-ORD-001
+      - PA-RCV-001
+      - PA-VAL-001
+      - PA-REV-001
+      - PA-ASV-001
+      - PA-MRV-001
+      - PA-NTF-001
+      - PA-DEC-001
+      - PA-DEC-002
+    gaps_created:
+      - GAP-001
+    breaking_changes: false

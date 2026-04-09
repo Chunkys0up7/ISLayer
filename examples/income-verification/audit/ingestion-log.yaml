@@ -1,0 +1,103 @@
+ingestion:
+  process_id: Process_IncomeVerification
+  source_file: bpmn/income-verification.bpmn
+  ingested_at: "2026-04-09T14:30:00Z"
+  ingested_by: mda-cli v1.0.0
+  status: completed
+
+phases:
+  - phase: bpmn_parse
+    status: completed
+    started_at: "2026-04-09T14:30:00Z"
+    completed_at: "2026-04-09T14:30:01Z"
+    details:
+      schema_valid: true
+      namespace: "https://mda.dev/bpmn/income-verification"
+      elements_found:
+        tasks: 6
+        gateways: 2
+        events: 3
+        data_objects: 4
+        sequence_flows: 12
+
+  - phase: lane_extraction
+    status: completed
+    started_at: "2026-04-09T14:30:01Z"
+    completed_at: "2026-04-09T14:30:01Z"
+    details:
+      lanes_found: 2
+      lane_assignments:
+        Lane_UnderwritingSystem: [Start_Requested, Task_ReceiveRequest, Task_EmitVerified, End_Verified, End_VarianceException]
+        Lane_VerificationAgent: [Task_ClassifyEmployment, Gateway_EmploymentType, Task_VerifyW2, Task_VerifySelfEmployment, Task_CalcQualifying, Gateway_Variance]
+
+  - phase: triple_generation
+    status: completed
+    started_at: "2026-04-09T14:30:01Z"
+    completed_at: "2026-04-09T14:30:05Z"
+    details:
+      triples_generated: 8
+      tasks:
+        - capability_id: ICT-IV-REQ-001
+          directory: triples/receive-request
+          files: [receive-request.cap.md, receive-request.intent.md, receive-request.contract.md, triple.manifest.json]
+        - capability_id: ICT-IV-CLS-001
+          directory: triples/classify-employment
+          files: [classify-employment.cap.md, classify-employment.intent.md, classify-employment.contract.md, triple.manifest.json]
+        - capability_id: ICT-IV-W2V-001
+          directory: triples/verify-w2
+          files: [verify-w2.cap.md, verify-w2.intent.md, verify-w2.contract.md, triple.manifest.json]
+        - capability_id: ICT-IV-SEI-001
+          directory: triples/verify-self-employment
+          files: [verify-self-employment.cap.md, verify-self-employment.intent.md, verify-self-employment.contract.md, triple.manifest.json]
+        - capability_id: ICT-IV-QAL-001
+          directory: triples/calc-qualifying
+          files: [calc-qualifying.cap.md, calc-qualifying.intent.md, calc-qualifying.contract.md, triple.manifest.json]
+        - capability_id: ICT-IV-NTF-001
+          directory: triples/emit-verified
+          files: [emit-verified.cap.md, emit-verified.intent.md, emit-verified.contract.md, triple.manifest.json]
+      decisions:
+        - capability_id: ICT-IV-DEC-001
+          directory: decisions/employment-type
+          files: [employment-type.cap.md, employment-type.intent.md, employment-type.contract.md, triple.manifest.json]
+        - capability_id: ICT-IV-DEC-002
+          directory: decisions/variance-threshold
+          files: [variance-threshold.cap.md, variance-threshold.intent.md, variance-threshold.contract.md, triple.manifest.json]
+
+  - phase: graph_construction
+    status: completed
+    started_at: "2026-04-09T14:30:05Z"
+    completed_at: "2026-04-09T14:30:06Z"
+    details:
+      nodes: 11
+      edges: 12
+      data_flows: 4
+      graph_file: graph/process-graph.yaml
+      visual_file: graph/graph-visual.md
+
+  - phase: gap_analysis
+    status: completed
+    started_at: "2026-04-09T14:30:06Z"
+    completed_at: "2026-04-09T14:30:07Z"
+    details:
+      gaps_identified: 1
+      gaps:
+        - id: GAP-001
+          severity: medium
+          summary: "Missing VOE fallback procedure for gig economy workers"
+
+  - phase: metadata_generation
+    status: completed
+    started_at: "2026-04-09T14:30:07Z"
+    completed_at: "2026-04-09T14:30:07Z"
+    details:
+      metadata_file: bpmn/bpmn-metadata.yaml
+      manifest_file: triples/_manifest.json
+
+warnings:
+  - code: WARN_HYBRID_NOT_MODELED
+    message: "HYBRID employment type identified in classification rules but no parallel gateway exists to run both verification paths simultaneously."
+    affected_elements: [Gateway_EmploymentType]
+
+  - code: WARN_IVES_ASYNC
+    message: "IRS IVES transcript service uses asynchronous callback pattern which is not modeled in the current BPMN process flow."
+    affected_elements: [Task_VerifyW2]

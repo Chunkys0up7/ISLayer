@@ -1,0 +1,61 @@
+process_id: Process_PropertyAppraisal
+process_name: Property Appraisal
+version: "1.0.0"
+status: draft
+
+domain: Mortgage
+subdomain: Property Appraisal
+
+bpmn_source: bpmn/property-appraisal.bpmn
+triple_manifest: triples/_manifest.json
+graph_file: graph/process-graph.yaml
+
+pipeline:
+  version: "1.0.0"
+  ingestion_date: "2026-04-09"
+  validation_schemas:
+    capsule: "../../schemas/capsule.schema.json"
+    intent: "../../schemas/intent.schema.json"
+    contract: "../../schemas/contract.schema.json"
+    triple_manifest: "../../schemas/triple-manifest.schema.json"
+
+naming_conventions:
+  triple_id_prefix: "PA"
+  capsule_id_prefix: "CAP-PA"
+  intent_id_prefix: "INT-PA"
+  contract_id_prefix: "ICT-PA"
+  decision_id_prefix: "PA-DEC"
+
+regulatory_context:
+  primary_regulations:
+    - "USPAP (Uniform Standards of Professional Appraisal Practice)"
+    - "AIR (Appraiser Independence Requirements - Dodd-Frank Section 1472)"
+    - "ECOA (Equal Credit Opportunity Act)"
+    - "TRID (TILA-RESPA Integrated Disclosure)"
+  investor_guidelines:
+    - "Fannie Mae Selling Guide B4-1"
+    - "FHA Handbook 4000.1 Sections D4-D5"
+  data_retention_years: 7
+
+integration_systems:
+  - name: LOS
+    description: "Loan Origination System (e.g., Encompass/ICE Mortgage Technology)"
+    binding_status: unbound
+  - name: Appraisal Portal
+    description: "AMC order management and report delivery portal"
+    binding_status: unbound
+  - name: Document Management System
+    description: "Enterprise document storage and indexing"
+    binding_status: unbound
+  - name: Payment Gateway
+    description: "Appraisal fee processing"
+    binding_status: unbound
+  - name: Event Bus
+    description: "Enterprise event publishing infrastructure"
+    binding_status: unbound
+  - name: MLS Data Provider
+    description: "Multiple Listing Service API for comparable sales verification"
+    binding_status: unbound
+  - name: Disclosure System
+    description: "Regulatory disclosure and borrower delivery system"
+    binding_status: unbound

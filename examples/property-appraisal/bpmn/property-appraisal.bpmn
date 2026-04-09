@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             id="Definitions_PropertyAppraisal"
+             targetNamespace="https://mda.dev/bpmn/property-appraisal"
+             exporter="MDA Intent Engine Pipeline"
+             exporterVersion="1.0.0">
+
+  <process id="Process_PropertyAppraisal" name="Property Appraisal" isExecutable="true">
+
+    <laneSet id="LaneSet_1">
+      <lane id="Lane_LoanProcessing" name="Loan Processing">
+        <flowNodeRef>Start_Ordered</flowNodeRef>
+        <flowNodeRef>Task_OrderAppraisal</flowNodeRef>
+        <flowNodeRef>Task_EmitComplete</flowNodeRef>
+        <flowNodeRef>End_Complete</flowNodeRef>
+      </lane>
+      <lane id="Lane_AppraisalManagement" name="Appraisal Management">
+        <flowNodeRef>Task_ReceiveReport</flowNodeRef>
+        <flowNodeRef>Task_ValidateCompleteness</flowNodeRef>
+        <flowNodeRef>Gateway_Complete</flowNodeRef>
+        <flowNodeRef>Task_RequestRevision</flowNodeRef>
+        <flowNodeRef>Task_AssessValue</flowNodeRef>
+        <flowNodeRef>Gateway_LTV</flowNodeRef>
+      </lane>
+      <lane id="Lane_UnderwritingReview" name="Underwriting Review">
+        <flowNodeRef>Task_ManualReview</flowNodeRef>
+        <flowNodeRef>End_ManualReview</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <!-- Events -->
+    <startEvent id="Start_Ordered" name="Appraisal Ordered">
+      <outgoing>Flow_Start_to_Order</outgoing>
+    </startEvent>
+
+    <endEvent id="End_Complete" name="Appraisal Complete">
+      <incoming>Flow_Emit_to_End</incoming>
+    </endEvent>
+
+    <endEvent id="End_ManualReview" name="Manual Review Required">
+      <incoming>Flow_Manual_to_End</incoming>
+    </endEvent>
+
+    <!-- Tasks -->
+    <sendTask id="Task_OrderAppraisal" name="Order Appraisal">
+      <incoming>Flow_Start_to_Order</incoming>
+      <outgoing>Flow_Order_to_Receive</outgoing>
+      <dataOutputAssociation id="DataOut_Order_1">
+        <targetRef>DataObject_PropertyDetails</targetRef>
+      </dataOutputAssociation>
+    </sendTask>
+
+    <receiveTask id="Task_ReceiveReport" name="Receive Appraisal Report">
+      <incoming>Flow_Order_to_Receive</incoming>
+      <incoming>Flow_Revision_to_Receive</incoming>
+      <outgoing>Flow_Receive_to_Validate</outgoing>
+      <dataOutputAssociation id="DataOut_Receive_1">
+        <targetRef>DataObject_AppraisalReport</targetRef>
+      </dataOutputAssociation>
+    </receiveTask>
+
+    <businessRuleTask id="Task_ValidateCompleteness" name="Validate Appraisal Completeness">
+      <incoming>Flow_Receive_to_Validate</incoming>
+      <outgoing>Flow_Validate_to_Gateway</outgoing>
+    </businessRuleTask>
+
+    <exclusiveGateway id="Gateway_Complete" name="Complete?">
+      <incoming>Flow_Validate_to_Gateway</incoming>
+      <outgoing>Flow_Complete_Yes</outgoing>
+      <outgoing>Flow_Complete_No</outgoing>
+    </exclusiveGateway>
+
+    <sendTask id="Task_RequestRevision" name="Request Appraisal Revision">
+      <incoming>Flow_Complete_No</incoming>
+      <outgoing>Flow_Revision_to_Receive</outgoing>
+    </sendTask>
+
+    <serviceTask id="Task_AssessValue" name="Assess Property Value">
+      <incoming>Flow_Complete_Yes</incoming>
+      <outgoing>Flow_Assess_to_LTV</outgoing>
+      <dataInputAssociation id="DataIn_Assess_1">
+        <sourceRef>DataObject_ComparableSales</sourceRef>
+      </dataInputAssociation>
+      <dataOutputAssociation id="DataOut_Assess_1">
+        <targetRef>DataObject_LTVCalculation</targetRef>
+      </dataOutputAssociation>
+    </serviceTask>
+
+    <exclusiveGateway id="Gateway_LTV" name="Value Within LTV?">
+      <incoming>Flow_Assess_to_LTV</incoming>
+      <outgoing>Flow_LTV_Within</outgoing>
+      <outgoing>Flow_LTV_Exceeds</outgoing>
+    </exclusiveGateway>
+
+    <sendTask id="Task_EmitComplete" name="Emit Appraisal Complete Event">
+      <incoming>Flow_LTV_Within</incoming>
+      <outgoing>Flow_Emit_to_End</outgoing>
+    </sendTask>
+
+    <userTask id="Task_ManualReview" name="Flag for Manual Review">
+      <incoming>Flow_LTV_Exceeds</incoming>
+      <outgoing>Flow_Manual_to_End</outgoing>
+    </userTask>
+
+    <!-- Data Objects -->
+    <dataObject id="DataObject_PropertyDetails" name="property_details" />
+    <dataObject id="DataObject_AppraisalReport" name="appraisal_report" />
+    <dataObject id="DataObject_LTVCalculation" name="ltv_calculation" />
+    <dataObject id="DataObject_ComparableSales" name="comparable_sales" />
+
+    <!-- Sequence Flows -->
+    <sequenceFlow id="Flow_Start_to_Order" sourceRef="Start_Ordered" targetRef="Task_OrderAppraisal" />
+    <sequenceFlow id="Flow_Order_to_Receive" sourceRef="Task_OrderAppraisal" targetRef="Task_ReceiveReport" />
+    <sequenceFlow id="Flow_Receive_to_Validate" sourceRef="Task_ReceiveReport" targetRef="Task_ValidateCompleteness" />
+    <sequenceFlow id="Flow_Validate_to_Gateway" sourceRef="Task_ValidateCompleteness" targetRef="Gateway_Complete" />
+    <sequenceFlow id="Flow_Complete_Yes" name="complete" sourceRef="Gateway_Complete" targetRef="Task_AssessValue">
+      <conditionExpression xsi:type="tFormalExpression">${appraisalComplete == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Complete_No" name="incomplete" sourceRef="Gateway_Complete" targetRef="Task_RequestRevision">
+      <conditionExpression xsi:type="tFormalExpression">${appraisalComplete == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Revision_to_Receive" sourceRef="Task_RequestRevision" targetRef="Task_ReceiveReport" />
+    <sequenceFlow id="Flow_Assess_to_LTV" sourceRef="Task_AssessValue" targetRef="Gateway_LTV" />
+    <sequenceFlow id="Flow_LTV_Within" name="within LTV" sourceRef="Gateway_LTV" targetRef="Task_EmitComplete">
+      <conditionExpression xsi:type="tFormalExpression">${ltvRatio &lt;= maxLTV}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_LTV_Exceeds" name="exceeds LTV" sourceRef="Gateway_LTV" targetRef="Task_ManualReview">
+      <conditionExpression xsi:type="tFormalExpression">${ltvRatio &gt; maxLTV}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Emit_to_End" sourceRef="Task_EmitComplete" targetRef="End_Complete" />
+    <sequenceFlow id="Flow_Manual_to_End" sourceRef="Task_ManualReview" targetRef="End_ManualReview" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_PropertyAppraisal">
+
+      <!-- Lane shapes -->
+      <bpmndi:BPMNShape id="Lane_LoanProcessing_di" bpmnElement="Lane_LoanProcessing" isHorizontal="true">
+        <dc:Bounds x="160" y="0" width="1200" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AppraisalManagement_di" bpmnElement="Lane_AppraisalManagement" isHorizontal="true">
+        <dc:Bounds x="160" y="200" width="1200" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UnderwritingReview_di" bpmnElement="Lane_UnderwritingReview" isHorizontal="true">
+        <dc:Bounds x="160" y="450" width="1200" height="200" />
+      </bpmndi:BPMNShape>
+
+      <!-- Start Event -->
+      <bpmndi:BPMNShape id="Start_Ordered_di" bpmnElement="Start_Ordered">
+        <dc:Bounds x="210" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Task shapes -->
+      <bpmndi:BPMNShape id="Task_OrderAppraisal_di" bpmnElement="Task_OrderAppraisal">
+        <dc:Bounds x="300" y="60" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveReport_di" bpmnElement="Task_ReceiveReport">
+        <dc:Bounds x="300" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidateCompleteness_di" bpmnElement="Task_ValidateCompleteness">
+        <dc:Bounds x="460" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Complete_di" bpmnElement="Gateway_Complete" isMarkerVisible="true">
+        <dc:Bounds x="620" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RequestRevision_di" bpmnElement="Task_RequestRevision">
+        <dc:Bounds x="595" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AssessValue_di" bpmnElement="Task_AssessValue">
+        <dc:Bounds x="740" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LTV_di" bpmnElement="Gateway_LTV" isMarkerVisible="true">
+        <dc:Bounds x="900" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EmitComplete_di" bpmnElement="Task_EmitComplete">
+        <dc:Bounds x="1000" y="60" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ManualReview_di" bpmnElement="Task_ManualReview">
+        <dc:Bounds x="1000" y="510" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- End Events -->
+      <bpmndi:BPMNShape id="End_Complete_di" bpmnElement="End_Complete">
+        <dc:Bounds x="1170" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ManualReview_di" bpmnElement="End_ManualReview">
+        <dc:Bounds x="1170" y="532" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Sequence Flow edges -->
+      <bpmndi:BPMNEdge id="Flow_Start_to_Order_di" bpmnElement="Flow_Start_to_Order">
+        <di:waypoint x="246" y="100" />
+        <di:waypoint x="300" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Order_to_Receive_di" bpmnElement="Flow_Order_to_Receive">
+        <di:waypoint x="350" y="140" />
+        <di:waypoint x="350" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Receive_to_Validate_di" bpmnElement="Flow_Receive_to_Validate">
+        <di:waypoint x="400" y="320" />
+        <di:waypoint x="460" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Validate_to_Gateway_di" bpmnElement="Flow_Validate_to_Gateway">
+        <di:waypoint x="560" y="320" />
+        <di:waypoint x="620" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Complete_Yes_di" bpmnElement="Flow_Complete_Yes">
+        <di:waypoint x="670" y="320" />
+        <di:waypoint x="740" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Complete_No_di" bpmnElement="Flow_Complete_No">
+        <di:waypoint x="645" y="345" />
+        <di:waypoint x="645" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Revision_to_Receive_di" bpmnElement="Flow_Revision_to_Receive">
+        <di:waypoint x="595" y="410" />
+        <di:waypoint x="350" y="410" />
+        <di:waypoint x="350" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Assess_to_LTV_di" bpmnElement="Flow_Assess_to_LTV">
+        <di:waypoint x="840" y="320" />
+        <di:waypoint x="900" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LTV_Within_di" bpmnElement="Flow_LTV_Within">
+        <di:waypoint x="925" y="295" />
+        <di:waypoint x="925" y="100" />
+        <di:waypoint x="1000" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LTV_Exceeds_di" bpmnElement="Flow_LTV_Exceeds">
+        <di:waypoint x="925" y="345" />
+        <di:waypoint x="925" y="550" />
+        <di:waypoint x="1000" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Emit_to_End_di" bpmnElement="Flow_Emit_to_End">
+        <di:waypoint x="1100" y="100" />
+        <di:waypoint x="1170" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Manual_to_End_di" bpmnElement="Flow_Manual_to_End">
+        <di:waypoint x="1100" y="550" />
+        <di:waypoint x="1170" y="550" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

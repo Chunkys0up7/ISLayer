@@ -1,0 +1,149 @@
+# MDA Intent Layer — Corpus Document Taxonomy
+# Defines the 8 document types and status lifecycle for .corpus.md files
+
+doc_types:
+  - id: procedure
+    name: Procedure
+    id_prefix: PRC
+    description: >
+      Step-by-step operational instructions describing how to carry out
+      a specific business activity or process task.
+    expected_body_sections:
+      - Purpose
+      - Scope
+      - Prerequisites
+      - Procedure Steps
+      - Exception Handling
+      - Related Documents
+    change_cadence: quarterly
+
+  - id: policy
+    name: Policy
+    id_prefix: POL
+    description: >
+      High-level organizational directives that establish rules, boundaries,
+      and decision-making authority for a business domain.
+    expected_body_sections:
+      - Purpose
+      - Scope
+      - Policy Statement
+      - Roles and Responsibilities
+      - Compliance Requirements
+      - Exceptions
+      - Related Documents
+    change_cadence: annual
+
+  - id: regulation
+    name: Regulation
+    id_prefix: REG
+    description: >
+      External regulatory requirements, statutes, or mandates imposed by
+      governing bodies that the organization must comply with.
+    expected_body_sections:
+      - Regulation Summary
+      - Applicability
+      - Key Requirements
+      - Compliance Obligations
+      - Penalties and Enforcement
+      - Source References
+    change_cadence: as-amended
+
+  - id: rule
+    name: Business Rule
+    id_prefix: RUL
+    description: >
+      Discrete, testable business logic statements that govern decisions,
+      validations, calculations, or routing within a process.
+    expected_body_sections:
+      - Rule Statement
+      - Conditions
+      - Actions
+      - Exceptions
+      - Examples
+      - Source Authority
+    change_cadence: quarterly
+
+  - id: data-dictionary
+    name: Data Dictionary
+    id_prefix: DAT
+    description: >
+      Definitions, formats, valid ranges, and lineage for data elements
+      used within a domain or process.
+    expected_body_sections:
+      - Overview
+      - Field Definitions
+      - Valid Values
+      - Data Lineage
+      - Validation Rules
+      - Related Systems
+    change_cadence: semi-annual
+
+  - id: system
+    name: System Reference
+    id_prefix: SYS
+    description: >
+      Technical documentation for systems, APIs, integrations, and
+      infrastructure that support business processes.
+    expected_body_sections:
+      - System Overview
+      - Capabilities
+      - Interfaces and APIs
+      - Data Flows
+      - Dependencies
+      - SLA and Availability
+    change_cadence: semi-annual
+
+  - id: training
+    name: Training Material
+    id_prefix: TRN
+    description: >
+      Educational content, guides, and reference material used for
+      onboarding, upskilling, or certification.
+    expected_body_sections:
+      - Learning Objectives
+      - Prerequisites
+      - Content
+      - Exercises
+      - Assessment Criteria
+      - References
+    change_cadence: annual
+
+  - id: glossary
+    name: Glossary
+    id_prefix: GLO
+    description: >
+      Domain-specific terminology definitions providing a shared vocabulary
+      across teams and documents.
+    expected_body_sections:
+      - Scope
+      - Terms and Definitions
+      - Abbreviations
+      - Related Glossaries
+    change_cadence: semi-annual
+
+status_lifecycle:
+  description: >
+    Corpus documents progress through a linear lifecycle.
+    Only 'current' documents are authoritative for intent generation.
+  states:
+    - id: draft
+      description: Initial authoring; not yet reviewed or approved.
+      allowed_transitions: [review]
+
+    - id: review
+      description: Under review by subject-matter experts or compliance.
+      allowed_transitions: [draft, current]
+
+    - id: current
+      description: Active, authoritative version used in intent generation.
+      allowed_transitions: [superseded, archived]
+
+    - id: superseded
+      description: Replaced by a newer version; retained for audit trail.
+      allowed_transitions: [archived]
+
+    - id: archived
+      description: No longer in use; preserved for historical reference only.
+      allowed_transitions: []
+
+  flow: "draft -> review -> current -> superseded -> archived"

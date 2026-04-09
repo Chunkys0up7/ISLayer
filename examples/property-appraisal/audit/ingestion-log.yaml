@@ -1,0 +1,69 @@
+process_id: Process_PropertyAppraisal
+process_name: Property Appraisal
+ingestion_version: "1.0.0"
+ingestion_date: "2026-04-09T10:00:00Z"
+ingestion_tool: "mda-pipeline"
+
+source:
+  bpmn_file: "bpmn/property-appraisal.bpmn"
+  bpmn_file_hash: "sha256:placeholder0000000000000000000000000000000000000000000000000000"
+  source_type: "bpmn-2.0-xml"
+
+extraction_summary:
+  total_tasks: 7
+  total_gateways: 2
+  total_events: 3
+  total_data_objects: 4
+  total_sequence_flows: 12
+  total_lanes: 3
+
+triples_generated:
+  - triple_id: PA-ORD-001
+    bpmn_element: Task_OrderAppraisal
+    status: generated
+    timestamp: "2026-04-09T10:01:00Z"
+  - triple_id: PA-RCV-001
+    bpmn_element: Task_ReceiveReport
+    status: generated
+    timestamp: "2026-04-09T10:01:05Z"
+  - triple_id: PA-VAL-001
+    bpmn_element: Task_ValidateCompleteness
+    status: generated
+    timestamp: "2026-04-09T10:01:10Z"
+  - triple_id: PA-REV-001
+    bpmn_element: Task_RequestRevision
+    status: generated
+    timestamp: "2026-04-09T10:01:15Z"
+  - triple_id: PA-ASV-001
+    bpmn_element: Task_AssessValue
+    status: generated
+    timestamp: "2026-04-09T10:01:20Z"
+  - triple_id: PA-MRV-001
+    bpmn_element: Task_ManualReview
+    status: generated
+    timestamp: "2026-04-09T10:01:25Z"
+  - triple_id: PA-NTF-001
+    bpmn_element: Task_EmitComplete
+    status: generated
+    timestamp: "2026-04-09T10:01:30Z"
+  - triple_id: PA-DEC-001
+    bpmn_element: Gateway_Complete
+    status: generated
+    timestamp: "2026-04-09T10:01:35Z"
+  - triple_id: PA-DEC-002
+    bpmn_element: Gateway_LTV
+    status: generated
+    timestamp: "2026-04-09T10:01:40Z"
+
+gaps_identified:
+  - gap_id: GAP-001
+    description: "Missing automated comparable sales validation against MLS data"
+    source_triple: PA-ASV-001
+    severity: medium
+
+validation_results:
+  schema_validation: pass
+  cross_reference_check: pass
+  completeness_check: pass
+  warnings:
+    - "BPMN file hash is placeholder; will be computed on next pipeline run."

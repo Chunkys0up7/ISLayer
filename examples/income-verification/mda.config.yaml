@@ -1,0 +1,64 @@
+mda:
+  version: "1.0.0"
+  project: income-verification-demo
+
+process:
+  id: Process_IncomeVerification
+  name: Income Verification
+  domain: mortgage-underwriting
+  subdomain: income-verification
+
+paths:
+  bpmn: bpmn/
+  triples: triples/
+  decisions: decisions/
+  graph: graph/
+  gaps: gaps/
+  audit: audit/
+
+bpmn:
+  source: bpmn/income-verification.bpmn
+  metadata: bpmn/bpmn-metadata.yaml
+
+naming:
+  capability_prefix: ICT-IV
+  gap_prefix: GAP
+
+ingestion:
+  auto_generate_triples: true
+  auto_generate_graph: true
+  gap_analysis: true
+  binding_status_default: unbound
+
+integrations:
+  systems:
+    - id: LOS
+      name: Loan Origination System
+      type: rest
+      description: Core loan application management system
+
+    - id: DocVault
+      name: Document Vault
+      type: rest
+      description: Document storage and extraction service for mortgage documents
+
+    - id: RuleEngine
+      name: Business Rule Engine
+      type: rest
+      description: DMN-compatible decision engine for underwriting rules
+
+    - id: EventBus
+      name: Underwriting Event Bus
+      type: kafka
+      description: Domain event streaming platform for underwriting workflow events
+
+    - id: IVES
+      name: IRS Income Verification Express Service
+      type: rest
+      description: IRS transcript retrieval service (async)
+
+validation:
+  require_all_triples: true
+  require_cross_references: true
+  require_predecessor_successor_match: true
+  require_data_flow_consistency: true

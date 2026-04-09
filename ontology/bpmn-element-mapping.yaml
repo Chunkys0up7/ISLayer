@@ -1,0 +1,216 @@
+# MDA Intent Layer — BPMN Element Mapping
+# Defines how each BPMN 2.0 element maps to triples
+
+mappings:
+  # === TASKS (produce full triples) ===
+  - bpmn_element: task
+    xml_tag: "<task>"
+    triple_type: standard
+    default_goal_type: null  # must be manually classified
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "Generic task — goal type must be set manually"
+
+  - bpmn_element: userTask
+    xml_tag: "<userTask>"
+    triple_type: standard
+    default_goal_type: data_production
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "Human-performed task, still gets intent spec for agent-assisted execution"
+
+  - bpmn_element: serviceTask
+    xml_tag: "<serviceTask>"
+    triple_type: standard
+    default_goal_type: data_production
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: businessRuleTask
+    xml_tag: "<businessRuleTask>"
+    triple_type: standard
+    default_goal_type: decision
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: sendTask
+    xml_tag: "<sendTask>"
+    triple_type: standard
+    default_goal_type: notification
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: receiveTask
+    xml_tag: "<receiveTask>"
+    triple_type: standard
+    default_goal_type: state_transition
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: scriptTask
+    xml_tag: "<scriptTask>"
+    triple_type: standard
+    default_goal_type: data_production
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: manualTask
+    xml_tag: "<manualTask>"
+    triple_type: standard
+    default_goal_type: data_production
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: callActivity
+    xml_tag: "<callActivity>"
+    triple_type: reference
+    default_goal_type: orchestration
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "Points to sub-process repo via cross-reference"
+
+  - bpmn_element: subProcess
+    xml_tag: "<subProcess>"
+    triple_type: container
+    default_goal_type: orchestration
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "Recursively generates triples for contained tasks"
+
+  # === GATEWAYS ===
+  - bpmn_element: exclusiveGateway
+    xml_tag: "<exclusiveGateway>"
+    triple_type: decision
+    default_goal_type: decision
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "XOR branching — one path taken"
+
+  - bpmn_element: inclusiveGateway
+    xml_tag: "<inclusiveGateway>"
+    triple_type: decision
+    default_goal_type: decision
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "OR branching — one or more paths taken"
+
+  - bpmn_element: parallelGateway
+    xml_tag: "<parallelGateway>"
+    triple_type: coordination
+    default_goal_type: null
+    generates_capsule: true
+    generates_intent: false
+    generates_contract: false
+    notes: "Fork/join — structural, not behavioral. Capsule only for documentation."
+
+  - bpmn_element: eventBasedGateway
+    xml_tag: "<eventBasedGateway>"
+    triple_type: decision
+    default_goal_type: decision
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  # === EVENTS ===
+  - bpmn_element: startEvent
+    xml_tag: "<startEvent>"
+    triple_type: process_boundary
+    default_goal_type: state_transition
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "Process entry point — trigger documentation"
+
+  - bpmn_element: endEvent
+    xml_tag: "<endEvent>"
+    triple_type: process_boundary
+    default_goal_type: state_transition
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: intermediateCatchEvent
+    xml_tag: "<intermediateCatchEvent>"
+    triple_type: standard
+    default_goal_type: state_transition
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: intermediateThrowEvent
+    xml_tag: "<intermediateThrowEvent>"
+    triple_type: standard
+    default_goal_type: notification
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+
+  - bpmn_element: boundaryEvent
+    xml_tag: "<boundaryEvent>"
+    triple_type: exception
+    default_goal_type: null
+    generates_capsule: true
+    generates_intent: true
+    generates_contract: true
+    notes: "Attached to parent task — exception handling"
+
+  # === NON-TRIPLE ELEMENTS (metadata extraction only) ===
+  - bpmn_element: dataObject
+    xml_tag: "<dataObject>"
+    triple_type: none
+    generates_capsule: false
+    generates_intent: false
+    generates_contract: false
+    extraction: "Referenced as input/output in intent specs and source/sink in contracts"
+
+  - bpmn_element: dataStoreReference
+    xml_tag: "<dataStoreReference>"
+    triple_type: none
+    generates_capsule: false
+    generates_intent: false
+    generates_contract: false
+    extraction: "Referenced as source/sink in contracts"
+
+  - bpmn_element: lane
+    xml_tag: "<lane>"
+    triple_type: none
+    generates_capsule: false
+    generates_intent: false
+    generates_contract: false
+    extraction: "Sets owner_role on enclosed tasks"
+
+  - bpmn_element: participant
+    xml_tag: "<participant>"
+    triple_type: none
+    generates_capsule: false
+    generates_intent: false
+    generates_contract: false
+    extraction: "Sets owner_team on enclosed tasks"
+
+  - bpmn_element: messageFlow
+    xml_tag: "<messageFlow>"
+    triple_type: none
+    generates_capsule: false
+    generates_intent: false
+    generates_contract: false
+    extraction: "Becomes event definition in integration contracts"
+
+  - bpmn_element: sequenceFlow
+    xml_tag: "<sequenceFlow>"
+    triple_type: none
+    generates_capsule: false
+    generates_intent: false
+    generates_contract: false
+    extraction: "Populates predecessor_ids and successor_ids in capsules"

@@ -1,0 +1,6 @@
+source_system: "Demo - Manual Creation"
+bpmn_version: "2.0"
+export_date: "2026-04-09"
+process_name: "Loan Origination"
+process_id: "Process_LoanOrigination"
+author: "MDA Demo"

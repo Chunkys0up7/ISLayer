@@ -1,0 +1,221 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mda-intent-engine.dev/schemas/capsule.schema.json",
+  "title": "MDA Intent Layer Knowledge Capsule",
+  "description": "Validates the YAML frontmatter of .cap.md (Knowledge Capsule) files in the MDA Intent Layer BPMN-to-Intent-Spec generation system.",
+  "type": "object",
+  "required": [
+    "capsule_id",
+    "bpmn_task_id",
+    "bpmn_task_name",
+    "bpmn_task_type",
+    "process_id",
+    "process_name",
+    "version",
+    "status",
+    "generated_from",
+    "generated_date",
+    "generated_by",
+    "last_modified",
+    "last_modified_by",
+    "intent_id",
+    "contract_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "capsule_id": {
+      "type": "string",
+      "pattern": "^CAP-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Unique identifier for this knowledge capsule."
+    },
+    "bpmn_task_id": {
+      "type": "string",
+      "description": "The BPMN task element ID this capsule was extracted from."
+    },
+    "bpmn_task_name": {
+      "type": "string",
+      "description": "Human-readable name of the BPMN task."
+    },
+    "bpmn_task_type": {
+      "type": "string",
+      "enum": [
+        "userTask",
+        "serviceTask",
+        "businessRuleTask",
+        "task",
+        "sendTask",
+        "receiveTask",
+        "scriptTask",
+        "manualTask",
+        "callActivity",
+        "subProcess"
+      ],
+      "description": "The BPMN task type."
+    },
+    "process_id": {
+      "type": "string",
+      "description": "The BPMN process ID containing this task."
+    },
+    "process_name": {
+      "type": "string",
+      "description": "Human-readable name of the BPMN process."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version in MAJOR.MINOR format."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "current", "deprecated", "archived"],
+      "description": "Lifecycle status of this capsule."
+    },
+    "generated_from": {
+      "type": "string",
+      "description": "Source file or artifact this capsule was generated from."
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this capsule was generated."
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Tool or person that generated this capsule."
+    },
+    "last_modified": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last modification."
+    },
+    "last_modified_by": {
+      "type": "string",
+      "description": "Tool or person that last modified this capsule."
+    },
+    "owner_role": {
+      "type": ["string", "null"],
+      "description": "Role responsible for this capsule."
+    },
+    "owner_team": {
+      "type": ["string", "null"],
+      "description": "Team responsible for this capsule."
+    },
+    "reviewers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of reviewer identifiers."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Business domain classification."
+    },
+    "subdomain": {
+      "type": "string",
+      "description": "Business subdomain classification."
+    },
+    "regulation_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "References to applicable regulations."
+    },
+    "policy_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "References to applicable policies."
+    },
+    "intent_id": {
+      "type": "string",
+      "pattern": "^INT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Cross-reference to the corresponding Intent Specification."
+    },
+    "contract_id": {
+      "type": "string",
+      "pattern": "^ICT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Cross-reference to the corresponding Integration Contract."
+    },
+    "parent_capsule_id": {
+      "type": ["string", "null"],
+      "pattern": "^CAP-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "ID of the parent capsule, if this is a sub-task capsule."
+    },
+    "predecessor_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^CAP-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$"
+      },
+      "description": "Capsule IDs that precede this one in the process flow."
+    },
+    "successor_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Capsule IDs that follow this one in the process flow."
+    },
+    "exception_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of exception-handling capsules related to this one."
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/gap"
+      },
+      "description": "Known gaps or ambiguities in the capsule content."
+    },
+    "corpus_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "corpus_id": {
+            "type": "string",
+            "pattern": "^CRP-[A-Z]{3}-[A-Z]{2,3}-\\d{3}$"
+          },
+          "section": {
+            "type": "string"
+          },
+          "match_confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          }
+        },
+        "required": ["corpus_id", "section", "match_confidence"],
+        "additionalProperties": false
+      },
+      "description": "References to corpus documents that informed this capsule."
+    }
+  },
+  "definitions": {
+    "gap": {
+      "type": "object",
+      "required": ["type", "description", "severity"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Category of the gap."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the gap."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "description": "Severity level of the gap."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "triple_id": "LO-DEC-001",
+  "capsule_id": "CAP-LO-DEC-001",
+  "intent_id": "INT-LO-DEC-001",
+  "contract_id": "ICT-LO-DEC-001",
+  "bpmn_task_id": "Gateway_Eligible",
+  "bpmn_process_id": "Process_LoanOrigination",
+  "status": "draft",
+  "version": "1.0",
+  "created": "2026-04-09T00:00:00Z",
+  "last_validated": null,
+  "validation_result": null,
+  "provenance": {
+    "bpmn_file": "loan-origination.bpmn",
+    "bpmn_file_hash": "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "pipeline_version": "0.1.0-demo"
+  }
+}

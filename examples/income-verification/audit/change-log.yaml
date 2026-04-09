@@ -1,0 +1,50 @@
+changelog:
+  process_id: Process_IncomeVerification
+
+entries:
+  - version: "1.0.0"
+    date: "2026-04-09"
+    author: mda-cli
+    type: initial_ingestion
+    summary: "Initial BPMN ingestion and triple generation for the Income Verification process."
+    changes:
+      - action: created
+        scope: process
+        detail: "Ingested income-verification.bpmn with 6 tasks, 2 gateways, 3 events, 4 data objects."
+
+      - action: created
+        scope: triples
+        detail: "Generated 8 CAP/INT/ICT triples (6 tasks + 2 decisions)."
+        affected_capabilities:
+          - ICT-IV-REQ-001
+          - ICT-IV-CLS-001
+          - ICT-IV-W2V-001
+          - ICT-IV-SEI-001
+          - ICT-IV-QAL-001
+          - ICT-IV-NTF-001
+          - ICT-IV-DEC-001
+          - ICT-IV-DEC-002
+
+      - action: created
+        scope: graph
+        detail: "Constructed process graph with 11 nodes and 12 edges."
+
+      - action: created
+        scope: gaps
+        detail: "Identified 1 gap: GAP-001 (Missing VOE fallback for gig economy workers)."
+
+      - action: created
+        scope: metadata
+        detail: "Generated bpmn-metadata.yaml and _manifest.json."
+
+    binding_status:
+      total: 8
+      bound: 0
+      unbound: 8
+
+    open_gaps:
+      - GAP-001
+
+    warnings:
+      - WARN_HYBRID_NOT_MODELED
+      - WARN_IVES_ASYNC

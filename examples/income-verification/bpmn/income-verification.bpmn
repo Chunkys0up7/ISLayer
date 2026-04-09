@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_IncomeVerification"
+                  targetNamespace="https://mda.dev/bpmn/income-verification"
+                  exporter="MDA Intent Layer Modeler"
+                  exporterVersion="1.0.0">
+
+  <bpmn:collaboration id="Collaboration_IncomeVerification">
+    <bpmn:participant id="Participant_IncomeVerification"
+                      name="Income Verification"
+                      processRef="Process_IncomeVerification" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_IncomeVerification"
+                name="Income Verification"
+                isExecutable="true">
+
+    <!-- Lane Set -->
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_UnderwritingSystem" name="Underwriting System">
+        <bpmn:flowNodeRef>Start_Requested</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReceiveRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EmitVerified</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Verified</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_VarianceException</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_VerificationAgent" name="Verification Agent">
+        <bpmn:flowNodeRef>Task_ClassifyEmployment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_EmploymentType</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerifyW2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerifySelfEmployment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CalcQualifying</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Variance</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Data Objects -->
+    <bpmn:dataObject id="DataObject_BorrowerProfile" name="borrower_profile" />
+    <bpmn:dataObject id="DataObject_TaxReturns" name="tax_returns" />
+    <bpmn:dataObject id="DataObject_W2Documents" name="w2_documents" />
+    <bpmn:dataObject id="DataObject_IncomeResult" name="income_result" />
+
+    <!-- Start Event -->
+    <bpmn:startEvent id="Start_Requested" name="Verification Requested">
+      <bpmn:outgoing>Flow_StartToReceive</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDef_Requested"
+                                    messageRef="Message_VerificationRequest" />
+    </bpmn:startEvent>
+
+    <!-- Task: Receive Verification Request -->
+    <bpmn:receiveTask id="Task_ReceiveRequest"
+                      name="Receive Verification Request"
+                      messageRef="Message_VerificationRequest">
+      <bpmn:incoming>Flow_StartToReceive</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReceiveToClassify</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssoc_BorrowerProfile">
+        <bpmn:targetRef>DataObject_BorrowerProfile</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:receiveTask>
+
+    <!-- Task: Classify Employment Type -->
+    <bpmn:businessRuleTask id="Task_ClassifyEmployment"
+                           name="Classify Employment Type"
+                           implementation="##unspecified">
+      <bpmn:incoming>Flow_ReceiveToClassify</bpmn:incoming>
+      <bpmn:outgoing>Flow_ClassifyToGateway</bpmn:outgoing>
+      <bpmn:dataInputAssociation id="DataInputAssoc_ClassifyProfile">
+        <bpmn:sourceRef>DataObject_BorrowerProfile</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:businessRuleTask>
+
+    <!-- Gateway: W-2 or Self-Employed? -->
+    <bpmn:exclusiveGateway id="Gateway_EmploymentType"
+                           name="W-2 or Self-Employed?"
+                           gatewayDirection="Diverging">
+      <bpmn:incoming>Flow_ClassifyToGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_GatewayToW2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_GatewayToSelfEmployed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Task: Verify W-2 Income -->
+    <bpmn:serviceTask id="Task_VerifyW2"
+                      name="Verify W-2 Income">
+      <bpmn:incoming>Flow_GatewayToW2</bpmn:incoming>
+      <bpmn:outgoing>Flow_W2ToCalc</bpmn:outgoing>
+      <bpmn:dataInputAssociation id="DataInputAssoc_W2Docs">
+        <bpmn:sourceRef>DataObject_W2Documents</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataInputAssociation id="DataInputAssoc_W2Tax">
+        <bpmn:sourceRef>DataObject_TaxReturns</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:serviceTask>
+
+    <!-- Task: Verify Self-Employment Income -->
+    <bpmn:serviceTask id="Task_VerifySelfEmployment"
+                      name="Verify Self-Employment Income">
+      <bpmn:incoming>Flow_GatewayToSelfEmployed</bpmn:incoming>
+      <bpmn:outgoing>Flow_SelfEmployedToCalc</bpmn:outgoing>
+      <bpmn:dataInputAssociation id="DataInputAssoc_SEITax">
+        <bpmn:sourceRef>DataObject_TaxReturns</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:serviceTask>
+
+    <!-- Task: Calculate Qualifying Income -->
+    <bpmn:businessRuleTask id="Task_CalcQualifying"
+                           name="Calculate Qualifying Income"
+                           implementation="##unspecified">
+      <bpmn:incoming>Flow_W2ToCalc</bpmn:incoming>
+      <bpmn:incoming>Flow_SelfEmployedToCalc</bpmn:incoming>
+      <bpmn:outgoing>Flow_CalcToVariance</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssoc_IncomeResult">
+        <bpmn:targetRef>DataObject_IncomeResult</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:businessRuleTask>
+
+    <!-- Gateway: Variance Exceeds Threshold? -->
+    <bpmn:exclusiveGateway id="Gateway_Variance"
+                           name="Variance Exceeds Threshold?"
+                           gatewayDirection="Diverging">
+      <bpmn:incoming>Flow_CalcToVariance</bpmn:incoming>
+      <bpmn:outgoing>Flow_VarianceToEmit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_VarianceToException</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Task: Emit Income Verified Event -->
+    <bpmn:sendTask id="Task_EmitVerified"
+                   name="Emit Income Verified Event">
+      <bpmn:incoming>Flow_VarianceToEmit</bpmn:incoming>
+      <bpmn:outgoing>Flow_EmitToEnd</bpmn:outgoing>
+      <bpmn:dataInputAssociation id="DataInputAssoc_EmitResult">
+        <bpmn:sourceRef>DataObject_IncomeResult</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:sendTask>
+
+    <!-- End Events -->
+    <bpmn:endEvent id="End_Verified" name="Income Verified">
+      <bpmn:incoming>Flow_EmitToEnd</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="End_VarianceException" name="Variance Exception">
+      <bpmn:incoming>Flow_VarianceToException</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDef_Variance"
+                                  errorRef="Error_VarianceExceeded" />
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_StartToReceive"
+                       sourceRef="Start_Requested"
+                       targetRef="Task_ReceiveRequest" />
+
+    <bpmn:sequenceFlow id="Flow_ReceiveToClassify"
+                       sourceRef="Task_ReceiveRequest"
+                       targetRef="Task_ClassifyEmployment" />
+
+    <bpmn:sequenceFlow id="Flow_ClassifyToGateway"
+                       sourceRef="Task_ClassifyEmployment"
+                       targetRef="Gateway_EmploymentType" />
+
+    <bpmn:sequenceFlow id="Flow_GatewayToW2"
+                       name="W-2 Employee"
+                       sourceRef="Gateway_EmploymentType"
+                       targetRef="Task_VerifyW2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        ${employmentType == 'W2'}
+      </bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_GatewayToSelfEmployed"
+                       name="Self-Employed"
+                       sourceRef="Gateway_EmploymentType"
+                       targetRef="Task_VerifySelfEmployment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        ${employmentType == 'SELF_EMPLOYED'}
+      </bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_W2ToCalc"
+                       sourceRef="Task_VerifyW2"
+                       targetRef="Task_CalcQualifying" />
+
+    <bpmn:sequenceFlow id="Flow_SelfEmployedToCalc"
+                       sourceRef="Task_VerifySelfEmployment"
+                       targetRef="Task_CalcQualifying" />
+
+    <bpmn:sequenceFlow id="Flow_CalcToVariance"
+                       sourceRef="Task_CalcQualifying"
+                       targetRef="Gateway_Variance" />
+
+    <bpmn:sequenceFlow id="Flow_VarianceToEmit"
+                       name="Within Threshold"
+                       sourceRef="Gateway_Variance"
+                       targetRef="Task_EmitVerified">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        ${variancePercent &lt;= varianceThreshold}
+      </bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_VarianceToException"
+                       name="Exceeds Threshold"
+                       sourceRef="Gateway_Variance"
+                       targetRef="End_VarianceException">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+        ${variancePercent &gt; varianceThreshold}
+      </bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_EmitToEnd"
+                       sourceRef="Task_EmitVerified"
+                       targetRef="End_Verified" />
+
+  </bpmn:process>
+
+  <!-- Messages -->
+  <bpmn:message id="Message_VerificationRequest"
+                name="VerificationRequest" />
+
+  <!-- Errors -->
+  <bpmn:error id="Error_VarianceExceeded"
+              name="VarianceExceeded"
+              errorCode="ERR_VARIANCE_001" />
+
+  <!-- Diagram -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1"
+                      bpmnElement="Collaboration_IncomeVerification">
+      <bpmndi:BPMNShape id="Participant_IncomeVerification_di"
+                        bpmnElement="Participant_IncomeVerification"
+                        isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1200" height="500" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UnderwritingSystem_di"
+                        bpmnElement="Lane_UnderwritingSystem"
+                        isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1170" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_VerificationAgent_di"
+                        bpmnElement="Lane_VerificationAgent"
+                        isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="1170" height="300" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

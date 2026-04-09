@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mda-intent-engine.dev/schemas/corpus-document.schema.json",
+  "title": "MDA Intent Layer Corpus Document",
+  "description": "Validates the YAML frontmatter of .corpus.md files in the MDA Intent Layer knowledge corpus.",
+  "type": "object",
+  "required": [
+    "corpus_id",
+    "title",
+    "slug",
+    "doc_type",
+    "domain",
+    "version",
+    "status",
+    "author",
+    "last_modified",
+    "last_modified_by",
+    "source"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "corpus_id": {
+      "type": "string",
+      "pattern": "^CRP-[A-Z]{3}-[A-Z]{2,3}-\\d{3}$",
+      "description": "Unique identifier for this corpus document."
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable title of the corpus document."
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly short name for the corpus document."
+    },
+    "doc_type": {
+      "type": "string",
+      "enum": [
+        "procedure",
+        "policy",
+        "regulation",
+        "rule",
+        "data-dictionary",
+        "system",
+        "training",
+        "glossary"
+      ],
+      "description": "The type of corpus document."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Business domain this document belongs to."
+    },
+    "subdomain": {
+      "type": "string",
+      "description": "Business subdomain classification."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Freeform tags for discovery and filtering."
+    },
+    "applies_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "process_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "BPMN process IDs this document applies to."
+        },
+        "task_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "userTask",
+              "serviceTask",
+              "businessRuleTask",
+              "task",
+              "sendTask",
+              "receiveTask",
+              "scriptTask",
+              "manualTask",
+              "callActivity",
+              "subProcess"
+            ]
+          },
+          "description": "BPMN task types this document is relevant to."
+        },
+        "task_name_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Regex patterns matched against BPMN task names."
+        },
+        "goal_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "data_production",
+              "decision",
+              "notification",
+              "state_transition",
+              "orchestration"
+            ]
+          },
+          "description": "Intent goal types this document applies to."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles for which this document is relevant."
+        }
+      },
+      "description": "Scoping rules that link this document to BPMN elements and intents."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version in MAJOR.MINOR format."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "current", "superseded", "archived"],
+      "description": "Lifecycle status of this corpus document."
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this document becomes effective."
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next scheduled review date."
+    },
+    "supersedes": {
+      "type": ["string", "null"],
+      "pattern": "^CRP-[A-Z]{3}-[A-Z]{2,3}-\\d{3}$",
+      "description": "Corpus ID of the document this one replaces."
+    },
+    "superseded_by": {
+      "type": ["string", "null"],
+      "pattern": "^CRP-[A-Z]{3}-[A-Z]{2,3}-\\d{3}$",
+      "description": "Corpus ID of the document that replaces this one."
+    },
+    "author": {
+      "type": "string",
+      "description": "Original author of this document."
+    },
+    "last_modified": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the last modification."
+    },
+    "last_modified_by": {
+      "type": "string",
+      "description": "Person or tool that last modified this document."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["internal", "external", "regulatory"],
+      "description": "Origin classification of this document."
+    },
+    "source_ref": {
+      "type": ["string", "null"],
+      "description": "External reference identifier for the source material."
+    },
+    "related_corpus_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^CRP-[A-Z]{3}-[A-Z]{2,3}-\\d{3}$"
+      },
+      "description": "Cross-references to related corpus documents."
+    },
+    "regulation_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "References to applicable regulations."
+    },
+    "policy_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "References to applicable policies."
+    }
+  }
+}

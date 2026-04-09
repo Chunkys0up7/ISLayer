@@ -1,0 +1,169 @@
+process:
+  id: Process_IncomeVerification
+  name: Income Verification
+  version: "1.0.0"
+
+nodes:
+  - id: Start_Requested
+    type: startEvent
+    name: Verification Requested
+    successors: [Task_ReceiveRequest]
+
+  - id: Task_ReceiveRequest
+    type: receiveTask
+    name: Receive Verification Request
+    capability_id: ICT-IV-REQ-001
+    lane: Lane_UnderwritingSystem
+    predecessors: [Start_Requested]
+    successors: [Task_ClassifyEmployment]
+    data_outputs: [borrower_profile]
+
+  - id: Task_ClassifyEmployment
+    type: businessRuleTask
+    name: Classify Employment Type
+    capability_id: ICT-IV-CLS-001
+    lane: Lane_VerificationAgent
+    predecessors: [Task_ReceiveRequest]
+    successors: [Gateway_EmploymentType]
+    data_inputs: [borrower_profile]
+
+  - id: Gateway_EmploymentType
+    type: exclusiveGateway
+    name: "W-2 or Self-Employed?"
+    capability_id: ICT-IV-DEC-001
+    predecessors: [Task_ClassifyEmployment]
+    successors: [Task_VerifyW2, Task_VerifySelfEmployment]
+    branches:
+      - condition: "${employmentType == 'W2'}"
+        target: Task_VerifyW2
+      - condition: "${employmentType == 'SELF_EMPLOYED'}"
+        target: Task_VerifySelfEmployment
+
+  - id: Task_VerifyW2
+    type: serviceTask
+    name: Verify W-2 Income
+    capability_id: ICT-IV-W2V-001
+    lane: Lane_VerificationAgent
+    predecessors: [Gateway_EmploymentType]
+    successors: [Task_CalcQualifying]
+    data_inputs: [w2_documents, tax_returns]
+
+  - id: Task_VerifySelfEmployment
+    type: serviceTask
+    name: Verify Self-Employment Income
+    capability_id: ICT-IV-SEI-001
+    lane: Lane_VerificationAgent
+    predecessors: [Gateway_EmploymentType]
+    successors: [Task_CalcQualifying]
+    data_inputs: [tax_returns]
+
+  - id: Task_CalcQualifying
+    type: businessRuleTask
+    name: Calculate Qualifying Income
+    capability_id: ICT-IV-QAL-001
+    lane: Lane_VerificationAgent
+    predecessors: [Task_VerifyW2, Task_VerifySelfEmployment]
+    successors: [Gateway_Variance]
+    data_outputs: [income_result]
+
+  - id: Gateway_Variance
+    type: exclusiveGateway
+    name: "Variance Exceeds Threshold?"
+    capability_id: ICT-IV-DEC-002
+    predecessors: [Task_CalcQualifying]
+    successors: [Task_EmitVerified, End_VarianceException]
+    branches:
+      - condition: "${variancePercent <= varianceThreshold}"
+        target: Task_EmitVerified
+      - condition: "${variancePercent > varianceThreshold}"
+        target: End_VarianceException
+
+  - id: Task_EmitVerified
+    type: sendTask
+    name: Emit Income Verified Event
+    capability_id: ICT-IV-NTF-001
+    lane: Lane_UnderwritingSystem
+    predecessors: [Gateway_Variance]
+    successors: [End_Verified]
+    data_inputs: [income_result]
+
+  - id: End_Verified
+    type: endEvent
+    name: Income Verified
+    predecessors: [Task_EmitVerified]
+
+  - id: End_VarianceException
+    type: endEvent
+    name: Variance Exception
+    error_code: ERR_VARIANCE_001
+    predecessors: [Gateway_Variance]
+
+edges:
+  - id: Flow_StartToReceive
+    source: Start_Requested
+    target: Task_ReceiveRequest
+
+  - id: Flow_ReceiveToClassify
+    source: Task_ReceiveRequest
+    target: Task_ClassifyEmployment
+
+  - id: Flow_ClassifyToGateway
+    source: Task_ClassifyEmployment
+    target: Gateway_EmploymentType
+
+  - id: Flow_GatewayToW2
+    source: Gateway_EmploymentType
+    target: Task_VerifyW2
+    label: W-2 Employee
+    condition: "${employmentType == 'W2'}"
+
+  - id: Flow_GatewayToSelfEmployed
+    source: Gateway_EmploymentType
+    target: Task_VerifySelfEmployment
+    label: Self-Employed
+    condition: "${employmentType == 'SELF_EMPLOYED'}"
+
+  - id: Flow_W2ToCalc
+    source: Task_VerifyW2
+    target: Task_CalcQualifying
+
+  - id: Flow_SelfEmployedToCalc
+    source: Task_VerifySelfEmployment
+    target: Task_CalcQualifying
+
+  - id: Flow_CalcToVariance
+    source: Task_CalcQualifying
+    target: Gateway_Variance
+
+  - id: Flow_VarianceToEmit
+    source: Gateway_Variance
+    target: Task_EmitVerified
+    label: Within Threshold
+    condition: "${variancePercent <= varianceThreshold}"
+
+  - id: Flow_VarianceToException
+    source: Gateway_Variance
+    target: End_VarianceException
+    label: Exceeds Threshold
+    condition: "${variancePercent > varianceThreshold}"
+
+  - id: Flow_EmitToEnd
+    source: Task_EmitVerified
+    target: End_Verified
+
+data_objects:
+  - id: borrower_profile
+    produced_by: Task_ReceiveRequest
+    consumed_by: [Task_ClassifyEmployment]
+
+  - id: tax_returns
+    produced_by: external
+    consumed_by: [Task_VerifyW2, Task_VerifySelfEmployment]
+
+  - id: w2_documents
+    produced_by: external
+    consumed_by: [Task_VerifyW2]
+
+  - id: income_result
+    produced_by: Task_CalcQualifying
+    consumed_by: [Task_EmitVerified]

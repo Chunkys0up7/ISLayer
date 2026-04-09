@@ -1,0 +1,74 @@
+{
+  "process_id": "Process_PropertyAppraisal",
+  "process_name": "Property Appraisal",
+  "version": "1.0",
+  "generated_date": "2026-04-09",
+  "pipeline_version": "1.0.0",
+  "triples": [
+    {
+      "triple_id": "PA-ORD-001",
+      "directory": "order-appraisal",
+      "bpmn_task_id": "Task_OrderAppraisal",
+      "bpmn_task_name": "Order Appraisal",
+      "type": "task"
+    },
+    {
+      "triple_id": "PA-RCV-001",
+      "directory": "receive-report",
+      "bpmn_task_id": "Task_ReceiveReport",
+      "bpmn_task_name": "Receive Appraisal Report",
+      "type": "task"
+    },
+    {
+      "triple_id": "PA-VAL-001",
+      "directory": "validate-completeness",
+      "bpmn_task_id": "Task_ValidateCompleteness",
+      "bpmn_task_name": "Validate Appraisal Completeness",
+      "type": "task"
+    },
+    {
+      "triple_id": "PA-REV-001",
+      "directory": "request-revision",
+      "bpmn_task_id": "Task_RequestRevision",
+      "bpmn_task_name": "Request Appraisal Revision",
+      "type": "task"
+    },
+    {
+      "triple_id": "PA-ASV-001",
+      "directory": "assess-value",
+      "bpmn_task_id": "Task_AssessValue",
+      "bpmn_task_name": "Assess Property Value",
+      "type": "task"
+    },
+    {
+      "triple_id": "PA-MRV-001",
+      "directory": "manual-review",
+      "bpmn_task_id": "Task_ManualReview",
+      "bpmn_task_name": "Flag for Manual Review",
+      "type": "task"
+    },
+    {
+      "triple_id": "PA-NTF-001",
+      "directory": "emit-complete",
+      "bpmn_task_id": "Task_EmitComplete",
+      "bpmn_task_name": "Emit Appraisal Complete Event",
+      "type": "task"
+    }
+  ],
+  "decisions": [
+    {
+      "triple_id": "PA-DEC-001",
+      "directory": "../decisions/completeness-check",
+      "bpmn_task_id": "Gateway_Complete",
+      "bpmn_task_name": "Complete?",
+      "type": "decision"
+    },
+    {
+      "triple_id": "PA-DEC-002",
+      "directory": "../decisions/ltv-check",
+      "bpmn_task_id": "Gateway_LTV",
+      "bpmn_task_name": "Value Within LTV?",
+      "type": "decision"
+    }
+  ]
+}

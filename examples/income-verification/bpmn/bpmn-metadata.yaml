@@ -1,0 +1,166 @@
+process:
+  id: Process_IncomeVerification
+  name: Income Verification
+  namespace: https://mda.dev/bpmn/income-verification
+  version: "1.0.0"
+  description: >
+    Automated income verification workflow for residential mortgage underwriting.
+    Supports W-2 salaried employees and self-employed borrowers. Validates
+    reported income against IRS documents and calculates qualifying income
+    per agency guidelines (FHA, Conventional).
+
+source:
+  file: income-verification.bpmn
+  exporter: MDA Intent Layer Modeler
+  exporter_version: "1.0.0"
+  schema: "http://www.omg.org/spec/BPMN/20100524/MODEL"
+
+lanes:
+  - id: Lane_UnderwritingSystem
+    name: Underwriting System
+    description: Orchestration layer managing verification lifecycle events
+  - id: Lane_VerificationAgent
+    name: Verification Agent
+    description: Agent responsible for document analysis and income calculation
+
+tasks:
+  - id: Task_ReceiveRequest
+    name: Receive Verification Request
+    type: receiveTask
+    lane: Lane_UnderwritingSystem
+    triple_dir: triples/receive-request
+    capability_id: ICT-IV-REQ-001
+
+  - id: Task_ClassifyEmployment
+    name: Classify Employment Type
+    type: businessRuleTask
+    lane: Lane_VerificationAgent
+    triple_dir: triples/classify-employment
+    capability_id: ICT-IV-CLS-001
+
+  - id: Task_VerifyW2
+    name: Verify W-2 Income
+    type: serviceTask
+    lane: Lane_VerificationAgent
+    triple_dir: triples/verify-w2
+    capability_id: ICT-IV-W2V-001
+
+  - id: Task_VerifySelfEmployment
+    name: Verify Self-Employment Income
+    type: serviceTask
+    lane: Lane_VerificationAgent
+    triple_dir: triples/verify-self-employment
+    capability_id: ICT-IV-SEI-001
+
+  - id: Task_CalcQualifying
+    name: Calculate Qualifying Income
+    type: businessRuleTask
+    lane: Lane_VerificationAgent
+    triple_dir: triples/calc-qualifying
+    capability_id: ICT-IV-QAL-001
+
+  - id: Task_EmitVerified
+    name: Emit Income Verified Event
+    type: sendTask
+    lane: Lane_UnderwritingSystem
+    triple_dir: triples/emit-verified
+    capability_id: ICT-IV-NTF-001
+
+gateways:
+  - id: Gateway_EmploymentType
+    name: "W-2 or Self-Employed?"
+    type: exclusiveGateway
+    decision_dir: decisions/employment-type
+    capability_id: ICT-IV-DEC-001
+    conditions:
+      - branch: Flow_GatewayToW2
+        label: W-2 Employee
+        expression: "${employmentType == 'W2'}"
+      - branch: Flow_GatewayToSelfEmployed
+        label: Self-Employed
+        expression: "${employmentType == 'SELF_EMPLOYED'}"
+
+  - id: Gateway_Variance
+    name: "Variance Exceeds Threshold?"
+    type: exclusiveGateway
+    decision_dir: decisions/variance-threshold
+    capability_id: ICT-IV-DEC-002
+    conditions:
+      - branch: Flow_VarianceToEmit
+        label: Within Threshold
+        expression: "${variancePercent <= varianceThreshold}"
+      - branch: Flow_VarianceToException
+        label: Exceeds Threshold
+        expression: "${variancePercent > varianceThreshold}"
+
+events:
+  - id: Start_Requested
+    name: Verification Requested
+    type: startEvent
+    trigger: message
+
+  - id: End_Verified
+    name: Income Verified
+    type: endEvent
+
+  - id: End_VarianceException
+    name: Variance Exception
+    type: endEvent
+    trigger: error
+    error_code: ERR_VARIANCE_001
+
+data_objects:
+  - id: DataObject_BorrowerProfile
+    name: borrower_profile
+    description: Borrower demographic and employment data from the Loan Origination System
+
+  - id: DataObject_TaxReturns
+    name: tax_returns
+    description: IRS Form 1040 transcripts (most recent 2 years)
+
+  - id: DataObject_W2Documents
+    name: w2_documents
+    description: IRS W-2 wage and tax statements (most recent 2 years)
+
+  - id: DataObject_IncomeResult
+    name: income_result
+    description: Calculated qualifying income with variance analysis
+
+sequence_flows:
+  - id: Flow_StartToReceive
+    source: Start_Requested
+    target: Task_ReceiveRequest
+  - id: Flow_ReceiveToClassify
+    source: Task_ReceiveRequest
+    target: Task_ClassifyEmployment
+  - id: Flow_ClassifyToGateway
+    source: Task_ClassifyEmployment
+    target: Gateway_EmploymentType
+  - id: Flow_GatewayToW2
+    source: Gateway_EmploymentType
+    target: Task_VerifyW2
+    label: W-2 Employee
+  - id: Flow_GatewayToSelfEmployed
+    source: Gateway_EmploymentType
+    target: Task_VerifySelfEmployment
+    label: Self-Employed
+  - id: Flow_W2ToCalc
+    source: Task_VerifyW2
+    target: Task_CalcQualifying
+  - id: Flow_SelfEmployedToCalc
+    source: Task_VerifySelfEmployment
+    target: Task_CalcQualifying
+  - id: Flow_CalcToVariance
+    source: Task_CalcQualifying
+    target: Gateway_Variance
+  - id: Flow_VarianceToEmit
+    source: Gateway_Variance
+    target: Task_EmitVerified
+    label: Within Threshold
+  - id: Flow_VarianceToException
+    source: Gateway_Variance
+    target: End_VarianceException
+    label: Exceeds Threshold
+  - id: Flow_EmitToEnd
+    source: Task_EmitVerified
+    target: End_Verified

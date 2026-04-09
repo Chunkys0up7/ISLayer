@@ -1,0 +1,7 @@
+# {{ type_name }}
+
+| ID | Title | Status | Tags |
+|----|-------|--------|------|
+{% for doc in documents -%}
+| {{ doc.corpus_id }} | [{{ doc.title }}]({{ doc.path }}) | {{ doc.status }} | {{ doc.tags | join(', ') }} |
+{% endfor %}

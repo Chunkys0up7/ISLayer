@@ -1,0 +1,147 @@
+process_id: Process_PropertyAppraisal
+process_name: Property Appraisal
+version: "1.0.0"
+generated_date: "2026-04-09"
+
+nodes:
+  - id: Start_Ordered
+    type: startEvent
+    name: Appraisal Ordered
+    lane: Lane_LoanProcessing
+
+  - id: Task_OrderAppraisal
+    type: sendTask
+    name: Order Appraisal
+    lane: Lane_LoanProcessing
+    triple_id: PA-ORD-001
+
+  - id: Task_ReceiveReport
+    type: receiveTask
+    name: Receive Appraisal Report
+    lane: Lane_AppraisalManagement
+    triple_id: PA-RCV-001
+
+  - id: Task_ValidateCompleteness
+    type: businessRuleTask
+    name: Validate Appraisal Completeness
+    lane: Lane_AppraisalManagement
+    triple_id: PA-VAL-001
+
+  - id: Gateway_Complete
+    type: exclusiveGateway
+    name: "Complete?"
+    lane: Lane_AppraisalManagement
+    triple_id: PA-DEC-001
+
+  - id: Task_RequestRevision
+    type: sendTask
+    name: Request Appraisal Revision
+    lane: Lane_AppraisalManagement
+    triple_id: PA-REV-001
+
+  - id: Task_AssessValue
+    type: serviceTask
+    name: Assess Property Value
+    lane: Lane_AppraisalManagement
+    triple_id: PA-ASV-001
+
+  - id: Gateway_LTV
+    type: exclusiveGateway
+    name: "Value Within LTV?"
+    lane: Lane_AppraisalManagement
+    triple_id: PA-DEC-002
+
+  - id: Task_EmitComplete
+    type: sendTask
+    name: Emit Appraisal Complete Event
+    lane: Lane_LoanProcessing
+    triple_id: PA-NTF-001
+
+  - id: Task_ManualReview
+    type: userTask
+    name: Flag for Manual Review
+    lane: Lane_UnderwritingReview
+    triple_id: PA-MRV-001
+
+  - id: End_Complete
+    type: endEvent
+    name: Appraisal Complete
+    lane: Lane_LoanProcessing
+
+  - id: End_ManualReview
+    type: endEvent
+    name: Manual Review Required
+    lane: Lane_UnderwritingReview
+
+edges:
+  - from: Start_Ordered
+    to: Task_OrderAppraisal
+    label: ""
+
+  - from: Task_OrderAppraisal
+    to: Task_ReceiveReport
+    label: ""
+
+  - from: Task_ReceiveReport
+    to: Task_ValidateCompleteness
+    label: ""
+
+  - from: Task_ValidateCompleteness
+    to: Gateway_Complete
+    label: ""
+
+  - from: Gateway_Complete
+    to: Task_AssessValue
+    label: "complete"
+
+  - from: Gateway_Complete
+    to: Task_RequestRevision
+    label: "incomplete"
+
+  - from: Task_RequestRevision
+    to: Task_ReceiveReport
+    label: "loop back"
+
+  - from: Task_AssessValue
+    to: Gateway_LTV
+    label: ""
+
+  - from: Gateway_LTV
+    to: Task_EmitComplete
+    label: "within LTV"
+
+  - from: Gateway_LTV
+    to: Task_ManualReview
+    label: "exceeds LTV"
+
+  - from: Task_EmitComplete
+    to: End_Complete
+    label: ""
+
+  - from: Task_ManualReview
+    to: End_ManualReview
+    label: ""
+
+data_objects:
+  - id: property_details
+    produced_by: Task_OrderAppraisal
+    consumed_by:
+      - Task_ReceiveReport
+
+  - id: appraisal_report
+    produced_by: Task_ReceiveReport
+    consumed_by:
+      - Task_ValidateCompleteness
+      - Task_AssessValue
+      - Task_ManualReview
+
+  - id: comparable_sales
+    produced_by: external
+    consumed_by:
+      - Task_AssessValue
+
+  - id: ltv_calculation
+    produced_by: Task_AssessValue
+    consumed_by:
+      - Task_EmitComplete
+      - Task_ManualReview

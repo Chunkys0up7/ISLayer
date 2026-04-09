@@ -1,0 +1,26 @@
+process_id: "Process_LoanOrigination"
+
+changes:
+  - change_id: "CHG-001"
+    date: "2026-04-09T00:00:00Z"
+    author: "MDA Demo"
+    type: "initial_creation"
+    description: "Initial generation of Loan Origination demo process with 10 triples from BPMN source."
+    affected_artifacts:
+      - "bpmn/loan-origination.bpmn"
+      - "bpmn/bpmn-metadata.yaml"
+      - "triples/receive-application/*"
+      - "triples/verify-identity/*"
+      - "triples/pull-credit/*"
+      - "triples/assess-dti/*"
+      - "triples/request-docs/*"
+      - "triples/package-loan/*"
+      - "triples/submit-underwriting/*"
+      - "triples/timeout-no-response/*"
+      - "decisions/loan-eligibility/*"
+      - "decisions/docs-received/*"
+      - "graph/process-graph.yaml"
+      - "graph/graph-visual.md"
+      - "gaps/GAP-001.md"
+    review_status: "pending"
+    reviewed_by: null

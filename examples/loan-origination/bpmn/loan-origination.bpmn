@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_LoanOrigination"
+             targetNamespace="https://mda.dev/examples/loan-origination"
+             exporter="MDA Demo"
+             exporterVersion="1.0">
+
+  <process id="Process_LoanOrigination" name="Loan Origination" isExecutable="true">
+
+    <!-- ═══════════════ Lanes ═══════════════ -->
+    <laneSet id="LaneSet_1">
+      <lane id="Lane_LoanOfficer" name="Loan Officer">
+        <flowNodeRef>Start_AppReceived</flowNodeRef>
+        <flowNodeRef>Task_ReceiveApplication</flowNodeRef>
+        <flowNodeRef>Task_RequestDocs</flowNodeRef>
+        <flowNodeRef>Boundary_Timeout</flowNodeRef>
+        <flowNodeRef>Gateway_DocsReceived</flowNodeRef>
+      </lane>
+      <lane id="Lane_ProcessingTeam" name="Processing Team">
+        <flowNodeRef>Task_PackageLoan</flowNodeRef>
+        <flowNodeRef>Task_SubmitUW</flowNodeRef>
+        <flowNodeRef>End_LoanSubmitted</flowNodeRef>
+      </lane>
+      <lane id="Lane_AutomatedSystems" name="Automated Systems">
+        <flowNodeRef>Task_VerifyIdentity</flowNodeRef>
+        <flowNodeRef>Task_PullCredit</flowNodeRef>
+        <flowNodeRef>Task_AssessDTI</flowNodeRef>
+        <flowNodeRef>Gateway_Eligible</flowNodeRef>
+        <flowNodeRef>End_Rejected</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <!-- ═══════════════ Data Objects ═══════════════ -->
+    <dataObject id="DataObject_BorrowerProfile" name="borrower_profile" />
+    <dataObject id="DataObject_CreditReport" name="credit_report" />
+    <dataObject id="DataObject_LoanApplication" name="loan_application" />
+    <dataObject id="DataObject_DTIResult" name="dti_result" />
+
+    <!-- ═══════════════ Events ═══════════════ -->
+    <startEvent id="Start_AppReceived" name="Application Received">
+      <outgoing>Flow_Start_to_Receive</outgoing>
+    </startEvent>
+
+    <endEvent id="End_LoanSubmitted" name="Loan Submitted">
+      <incoming>Flow_Submit_to_End</incoming>
+    </endEvent>
+
+    <endEvent id="End_Rejected" name="Application Rejected">
+      <incoming>Flow_DocsNo_to_Rejected</incoming>
+      <incoming>Flow_Timeout_to_Rejected</incoming>
+    </endEvent>
+
+    <!-- ═══════════════ Tasks ═══════════════ -->
+    <receiveTask id="Task_ReceiveApplication" name="Receive Loan Application">
+      <incoming>Flow_Start_to_Receive</incoming>
+      <outgoing>Flow_Receive_to_Verify</outgoing>
+      <dataOutputAssociation id="DOA_1">
+        <targetRef>DataObject_LoanApplication</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation id="DOA_2">
+        <targetRef>DataObject_BorrowerProfile</targetRef>
+      </dataOutputAssociation>
+    </receiveTask>
+
+    <serviceTask id="Task_VerifyIdentity" name="Verify Borrower Identity">
+      <incoming>Flow_Receive_to_Verify</incoming>
+      <outgoing>Flow_Verify_to_Credit</outgoing>
+      <dataInputAssociation id="DIA_1">
+        <sourceRef>DataObject_BorrowerProfile</sourceRef>
+      </dataInputAssociation>
+    </serviceTask>
+
+    <serviceTask id="Task_PullCredit" name="Pull Credit Report">
+      <incoming>Flow_Verify_to_Credit</incoming>
+      <outgoing>Flow_Credit_to_DTI</outgoing>
+      <dataInputAssociation id="DIA_2">
+        <sourceRef>DataObject_BorrowerProfile</sourceRef>
+      </dataInputAssociation>
+      <dataOutputAssociation id="DOA_3">
+        <targetRef>DataObject_CreditReport</targetRef>
+      </dataOutputAssociation>
+    </serviceTask>
+
+    <businessRuleTask id="Task_AssessDTI" name="Assess Debt-to-Income Ratio">
+      <incoming>Flow_Credit_to_DTI</incoming>
+      <incoming>Flow_DocsYes_to_DTI</incoming>
+      <outgoing>Flow_DTI_to_Eligible</outgoing>
+      <dataInputAssociation id="DIA_3">
+        <sourceRef>DataObject_LoanApplication</sourceRef>
+      </dataInputAssociation>
+      <dataInputAssociation id="DIA_4">
+        <sourceRef>DataObject_CreditReport</sourceRef>
+      </dataInputAssociation>
+      <dataOutputAssociation id="DOA_4">
+        <targetRef>DataObject_DTIResult</targetRef>
+      </dataOutputAssociation>
+    </businessRuleTask>
+
+    <sendTask id="Task_RequestDocs" name="Request Additional Documentation">
+      <incoming>Flow_Eligible_NeedsDocs</incoming>
+      <outgoing>Flow_Request_to_DocsGW</outgoing>
+    </sendTask>
+
+    <task id="Task_PackageLoan" name="Package Loan File">
+      <incoming>Flow_Eligible_Yes</incoming>
+      <outgoing>Flow_Package_to_Submit</outgoing>
+      <dataInputAssociation id="DIA_5">
+        <sourceRef>DataObject_LoanApplication</sourceRef>
+      </dataInputAssociation>
+      <dataInputAssociation id="DIA_6">
+        <sourceRef>DataObject_CreditReport</sourceRef>
+      </dataInputAssociation>
+      <dataInputAssociation id="DIA_7">
+        <sourceRef>DataObject_DTIResult</sourceRef>
+      </dataInputAssociation>
+    </task>
+
+    <sendTask id="Task_SubmitUW" name="Submit to Underwriting">
+      <incoming>Flow_Package_to_Submit</incoming>
+      <outgoing>Flow_Submit_to_End</outgoing>
+    </sendTask>
+
+    <!-- ═══════════════ Gateways ═══════════════ -->
+    <exclusiveGateway id="Gateway_Eligible" name="Eligible?">
+      <incoming>Flow_DTI_to_Eligible</incoming>
+      <outgoing>Flow_Eligible_Yes</outgoing>
+      <outgoing>Flow_Eligible_NeedsDocs</outgoing>
+    </exclusiveGateway>
+
+    <exclusiveGateway id="Gateway_DocsReceived" name="Docs Received?">
+      <incoming>Flow_Request_to_DocsGW</incoming>
+      <outgoing>Flow_DocsYes_to_DTI</outgoing>
+      <outgoing>Flow_DocsNo_to_Rejected</outgoing>
+    </exclusiveGateway>
+
+    <!-- ═══════════════ Boundary Event ═══════════════ -->
+    <boundaryEvent id="Boundary_Timeout" name="Timeout - No Response"
+                   attachedToRef="Task_RequestDocs" cancelActivity="true">
+      <outgoing>Flow_Timeout_to_Rejected</outgoing>
+      <timerEventDefinition id="Timer_Timeout">
+        <timeDuration>P14D</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+
+    <!-- ═══════════════ Sequence Flows ═══════════════ -->
+    <sequenceFlow id="Flow_Start_to_Receive"
+                  sourceRef="Start_AppReceived"
+                  targetRef="Task_ReceiveApplication" />
+
+    <sequenceFlow id="Flow_Receive_to_Verify"
+                  sourceRef="Task_ReceiveApplication"
+                  targetRef="Task_VerifyIdentity" />
+
+    <sequenceFlow id="Flow_Verify_to_Credit"
+                  sourceRef="Task_VerifyIdentity"
+                  targetRef="Task_PullCredit" />
+
+    <sequenceFlow id="Flow_Credit_to_DTI"
+                  sourceRef="Task_PullCredit"
+                  targetRef="Task_AssessDTI" />
+
+    <sequenceFlow id="Flow_DTI_to_Eligible"
+                  sourceRef="Task_AssessDTI"
+                  targetRef="Gateway_Eligible" />
+
+    <sequenceFlow id="Flow_Eligible_Yes" name="Eligible"
+                  sourceRef="Gateway_Eligible"
+                  targetRef="Task_PackageLoan">
+      <conditionExpression xsi:type="tFormalExpression">
+        ${dti_result.eligible == true &amp;&amp; dti_result.docs_complete == true}
+      </conditionExpression>
+    </sequenceFlow>
+
+    <sequenceFlow id="Flow_Eligible_NeedsDocs" name="Needs Additional Docs"
+                  sourceRef="Gateway_Eligible"
+                  targetRef="Task_RequestDocs">
+      <conditionExpression xsi:type="tFormalExpression">
+        ${dti_result.docs_complete == false}
+      </conditionExpression>
+    </sequenceFlow>
+
+    <sequenceFlow id="Flow_Request_to_DocsGW"
+                  sourceRef="Task_RequestDocs"
+                  targetRef="Gateway_DocsReceived" />
+
+    <sequenceFlow id="Flow_DocsYes_to_DTI" name="Docs Received"
+                  sourceRef="Gateway_DocsReceived"
+                  targetRef="Task_AssessDTI">
+      <conditionExpression xsi:type="tFormalExpression">
+        ${docs_received == true}
+      </conditionExpression>
+    </sequenceFlow>
+
+    <sequenceFlow id="Flow_DocsNo_to_Rejected" name="Not Received"
+                  sourceRef="Gateway_DocsReceived"
+                  targetRef="End_Rejected">
+      <conditionExpression xsi:type="tFormalExpression">
+        ${docs_received == false}
+      </conditionExpression>
+    </sequenceFlow>
+
+    <sequenceFlow id="Flow_Package_to_Submit"
+                  sourceRef="Task_PackageLoan"
+                  targetRef="Task_SubmitUW" />
+
+    <sequenceFlow id="Flow_Submit_to_End"
+                  sourceRef="Task_SubmitUW"
+                  targetRef="End_LoanSubmitted" />
+
+    <sequenceFlow id="Flow_Timeout_to_Rejected"
+                  sourceRef="Boundary_Timeout"
+                  targetRef="End_Rejected" />
+
+  </process>
+
+</definitions>

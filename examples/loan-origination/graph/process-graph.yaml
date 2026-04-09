@@ -1,0 +1,158 @@
+process_id: "Process_LoanOrigination"
+process_name: "Loan Origination"
+generated_date: "2026-04-09T00:00:00Z"
+
+nodes:
+  - id: "Start_AppReceived"
+    type: "startEvent"
+    name: "Application Received"
+    lane: "Loan Officer"
+
+  - id: "Task_ReceiveApplication"
+    type: "receiveTask"
+    name: "Receive Loan Application"
+    lane: "Loan Officer"
+    triple_id: "LO-APP-001"
+
+  - id: "Task_VerifyIdentity"
+    type: "serviceTask"
+    name: "Verify Borrower Identity"
+    lane: "Automated Systems"
+    triple_id: "LO-IDV-001"
+
+  - id: "Task_PullCredit"
+    type: "serviceTask"
+    name: "Pull Credit Report"
+    lane: "Automated Systems"
+    triple_id: "LO-CRC-001"
+
+  - id: "Task_AssessDTI"
+    type: "businessRuleTask"
+    name: "Assess Debt-to-Income Ratio"
+    lane: "Automated Systems"
+    triple_id: "LO-DTI-001"
+
+  - id: "Gateway_Eligible"
+    type: "exclusiveGateway"
+    name: "Eligible?"
+    lane: "Automated Systems"
+    triple_id: "LO-DEC-001"
+
+  - id: "Task_RequestDocs"
+    type: "sendTask"
+    name: "Request Additional Documentation"
+    lane: "Loan Officer"
+    triple_id: "LO-DOC-001"
+
+  - id: "Boundary_Timeout"
+    type: "boundaryEvent"
+    name: "Timeout - No Response"
+    lane: "Loan Officer"
+    attached_to: "Task_RequestDocs"
+    triple_id: "LO-TMO-001"
+
+  - id: "Gateway_DocsReceived"
+    type: "exclusiveGateway"
+    name: "Docs Received?"
+    lane: "Loan Officer"
+    triple_id: "LO-DEC-002"
+
+  - id: "Task_PackageLoan"
+    type: "task"
+    name: "Package Loan File"
+    lane: "Processing Team"
+    triple_id: "LO-PKG-001"
+
+  - id: "Task_SubmitUW"
+    type: "sendTask"
+    name: "Submit to Underwriting"
+    lane: "Processing Team"
+    triple_id: "LO-SUB-001"
+
+  - id: "End_LoanSubmitted"
+    type: "endEvent"
+    name: "Loan Submitted"
+    lane: "Processing Team"
+
+  - id: "End_Rejected"
+    type: "endEvent"
+    name: "Application Rejected"
+    lane: "Automated Systems"
+
+edges:
+  - id: "Flow_Start_to_Receive"
+    source: "Start_AppReceived"
+    target: "Task_ReceiveApplication"
+
+  - id: "Flow_Receive_to_Verify"
+    source: "Task_ReceiveApplication"
+    target: "Task_VerifyIdentity"
+
+  - id: "Flow_Verify_to_Credit"
+    source: "Task_VerifyIdentity"
+    target: "Task_PullCredit"
+
+  - id: "Flow_Credit_to_DTI"
+    source: "Task_PullCredit"
+    target: "Task_AssessDTI"
+
+  - id: "Flow_DTI_to_Eligible"
+    source: "Task_AssessDTI"
+    target: "Gateway_Eligible"
+
+  - id: "Flow_Eligible_Yes"
+    source: "Gateway_Eligible"
+    target: "Task_PackageLoan"
+    condition: "Eligible"
+
+  - id: "Flow_Eligible_NeedsDocs"
+    source: "Gateway_Eligible"
+    target: "Task_RequestDocs"
+    condition: "Needs Additional Docs"
+
+  - id: "Flow_Request_to_DocsGW"
+    source: "Task_RequestDocs"
+    target: "Gateway_DocsReceived"
+
+  - id: "Flow_DocsYes_to_DTI"
+    source: "Gateway_DocsReceived"
+    target: "Task_AssessDTI"
+    condition: "Docs Received"
+
+  - id: "Flow_DocsNo_to_Rejected"
+    source: "Gateway_DocsReceived"
+    target: "End_Rejected"
+    condition: "Not Received"
+
+  - id: "Flow_Package_to_Submit"
+    source: "Task_PackageLoan"
+    target: "Task_SubmitUW"
+
+  - id: "Flow_Submit_to_End"
+    source: "Task_SubmitUW"
+    target: "End_LoanSubmitted"
+
+  - id: "Flow_Timeout_to_Rejected"
+    source: "Boundary_Timeout"
+    target: "End_Rejected"
+
+data_objects:
+  - id: "DataObject_BorrowerProfile"
+    name: "borrower_profile"
+    produced_by: ["Task_ReceiveApplication"]
+    consumed_by: ["Task_VerifyIdentity", "Task_PullCredit", "Task_AssessDTI"]
+
+  - id: "DataObject_CreditReport"
+    name: "credit_report"
+    produced_by: ["Task_PullCredit"]
+    consumed_by: ["Task_AssessDTI", "Task_PackageLoan"]
+
+  - id: "DataObject_LoanApplication"
+    name: "loan_application"
+    produced_by: ["Task_ReceiveApplication"]
+    consumed_by: ["Task_AssessDTI", "Task_PackageLoan"]
+
+  - id: "DataObject_DTIResult"
+    name: "dti_result"
+    produced_by: ["Task_AssessDTI"]
+    consumed_by: ["Gateway_Eligible", "Task_PackageLoan"]

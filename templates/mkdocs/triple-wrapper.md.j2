@@ -1,0 +1,13 @@
+# {{ task_name }} — {{ triple_type }}
+
+!!! info "Triple Navigation"
+    **Capsule**: [{{ capsule_link.name }}]({{ capsule_link.url }}) |
+    **Intent**: [{{ intent_link.name }}]({{ intent_link.url }}) |
+    **Contract**: [{{ contract_link.name }}]({{ contract_link.url }})
+
+    {% if predecessor_links %}**Predecessors**: {% for p in predecessor_links %}[{{ p.name }}]({{ p.url }}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}
+    {% if successor_links %}**Successors**: {% for s in successor_links %}[{{ s.name }}]({{ s.url }}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}
+
+---
+
+{{ content }}

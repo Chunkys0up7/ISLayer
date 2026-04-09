@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mda-intent-engine.dev/schemas/triple-manifest.schema.json",
+  "title": "MDA Intent Layer Triple Manifest",
+  "description": "Validates the triple.manifest.json file that links a Knowledge Capsule, Intent Specification, and Integration Contract into a validated triple.",
+  "type": "object",
+  "required": [
+    "triple_id",
+    "capsule_id",
+    "intent_id",
+    "contract_id",
+    "bpmn_task_id",
+    "bpmn_process_id",
+    "status",
+    "version",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "triple_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Unique identifier for this triple (shared suffix across capsule, intent, and contract)."
+    },
+    "capsule_id": {
+      "type": "string",
+      "pattern": "^CAP-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Reference to the Knowledge Capsule."
+    },
+    "intent_id": {
+      "type": "string",
+      "pattern": "^INT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Reference to the Intent Specification."
+    },
+    "contract_id": {
+      "type": "string",
+      "pattern": "^ICT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Reference to the Integration Contract."
+    },
+    "bpmn_task_id": {
+      "type": "string",
+      "description": "The BPMN task element ID this triple represents."
+    },
+    "bpmn_process_id": {
+      "type": "string",
+      "description": "The BPMN process ID containing the task."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "current", "deprecated", "archived"],
+      "description": "Lifecycle status of this triple."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version in MAJOR.MINOR format."
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this triple was created."
+    },
+    "last_validated": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last validation run, or null if never validated."
+    },
+    "validation_result": {
+      "type": ["string", "null"],
+      "enum": ["pass", "fail", "skipped", null],
+      "description": "Result of the last validation run."
+    },
+    "provenance": {
+      "$ref": "#/definitions/provenance",
+      "description": "Provenance information linking back to the source BPMN file."
+    }
+  },
+  "definitions": {
+    "provenance": {
+      "type": "object",
+      "required": ["bpmn_file", "bpmn_file_hash", "pipeline_version"],
+      "additionalProperties": false,
+      "properties": {
+        "bpmn_file": {
+          "type": "string",
+          "description": "Path or name of the source BPMN file."
+        },
+        "bpmn_file_hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 hash of the source BPMN file for integrity verification."
+        },
+        "pipeline_version": {
+          "type": "string",
+          "description": "Version of the generation pipeline that produced this triple."
+        }
+      }
+    }
+  }
+}

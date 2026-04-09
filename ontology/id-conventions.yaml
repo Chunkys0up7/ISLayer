@@ -1,0 +1,85 @@
+# MDA Intent Layer — ID Conventions
+# Defines the naming rules for all identifiers
+
+id_format:
+  pattern: "{TYPE}-{PROCESS}-{CATEGORY}-{SEQ}"
+
+  type_prefixes:
+    CAP: "Knowledge Capsule"
+    INT: "Intent Specification"
+    ICT: "Integration Contract"
+    GAP: "Unresolved Gap"
+    CRP: "Corpus Document"
+
+  process_codes:
+    description: "2-3 uppercase letter code identifying the process"
+    rules:
+      - "Must be unique across all process repos"
+      - "Derived from process name abbreviation"
+      - "Registered in engine repo process catalog"
+    examples:
+      LO: "Loan Origination"
+      IV: "Income Verification"
+      PA: "Property Appraisal"
+      UW: "Underwriting"
+      DC: "Document Collection"
+      CL: "Closing"
+
+  category_codes:
+    description: "3 uppercase letter code identifying the functional area within the process"
+    rules:
+      - "Derived from task name"
+      - "Must be unique within a process"
+      - "Reuse standard codes where applicable"
+    standard_codes:
+      APP: "Application"
+      IDV: "Identity Verification"
+      CRC: "Credit Check"
+      INC: "Income"
+      DTI: "Debt-to-Income"
+      DOC: "Documentation"
+      PKG: "Packaging"
+      SUB: "Submission"
+      DEC: "Decision"
+      ESC: "Escalation"
+      NTF: "Notification"
+      REQ: "Request"
+      CLS: "Classification"
+      QAL: "Qualification"
+      ORD: "Order"
+      RCV: "Receive"
+      VAL: "Validation"
+      REV: "Revision"
+      ASV: "Assessment"
+      MRV: "Manual Review"
+      TMO: "Timeout"
+      REJ: "Rejection"
+      W2V: "W-2 Verification"
+      SEI: "Self-Employment Income"
+      PRC: "Procedure (corpus doc type)"
+      POL: "Policy (corpus doc type)"
+      REG: "Regulation (corpus doc type)"
+      RUL: "Rule (corpus doc type)"
+      DAT: "Data Dictionary (corpus doc type)"
+      SYS: "System Reference (corpus doc type)"
+      TRN: "Training Material (corpus doc type)"
+      GLO: "Glossary (corpus doc type)"
+
+  sequence:
+    description: "3-digit zero-padded sequential number"
+    format: "\\d{3}"
+    starts_at: "001"
+    notes: "Sequence is unique within a process+category combination"
+
+  triple_id:
+    description: "The shared stem used in triple.manifest.json"
+    format: "{PROCESS}-{CATEGORY}-{SEQ}"
+    notes: "Same as the full ID minus the type prefix"
+
+  cross_reference_rules:
+    - "A capsule CAP-XX-YYY-NNN must have matching INT-XX-YYY-NNN and ICT-XX-YYY-NNN"
+    - "All three files in a triple share the same PROCESS-CATEGORY-SEQ stem"
+    - "predecessor_ids and successor_ids reference capsule IDs (CAP-...)"
+    - "exception_ids reference capsule IDs of boundary event triples"
+    - "intent_id in capsule frontmatter must match the paired intent spec's intent_id"
+    - "contract_ref in intent spec must match the paired contract's contract_id"

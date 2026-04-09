@@ -1,0 +1,267 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mda-intent-engine.dev/schemas/intent.schema.json",
+  "title": "MDA Intent Layer Intent Specification",
+  "description": "Validates the YAML frontmatter of .intent.md (Intent Specification) files in the MDA Intent Layer BPMN-to-Intent-Spec generation system.",
+  "type": "object",
+  "required": [
+    "intent_id",
+    "capsule_id",
+    "bpmn_task_id",
+    "version",
+    "status",
+    "goal",
+    "goal_type",
+    "contract_ref",
+    "generated_from",
+    "generated_date",
+    "generated_by"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "intent_id": {
+      "type": "string",
+      "pattern": "^INT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Unique identifier for this intent specification."
+    },
+    "capsule_id": {
+      "type": "string",
+      "pattern": "^CAP-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Cross-reference to the source Knowledge Capsule."
+    },
+    "bpmn_task_id": {
+      "type": "string",
+      "description": "The BPMN task element ID this intent was derived from."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version in MAJOR.MINOR format."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "current", "deprecated", "archived"],
+      "description": "Lifecycle status of this intent specification."
+    },
+    "goal": {
+      "type": "string",
+      "description": "The outcome statement describing what this task achieves."
+    },
+    "goal_type": {
+      "type": "string",
+      "enum": ["data_production", "decision", "notification", "state_transition", "orchestration"],
+      "description": "Classification of the goal's nature."
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conditions that must be true before execution."
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/input"
+      },
+      "description": "Data inputs required for execution."
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/output"
+      },
+      "description": "Data outputs produced by execution."
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conditions that must remain true throughout execution."
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Criteria that define successful completion."
+    },
+    "failure_modes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/failure_mode"
+      },
+      "description": "Known failure modes and their handling."
+    },
+    "contract_ref": {
+      "type": "string",
+      "pattern": "^ICT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Reference to the associated Integration Contract."
+    },
+    "idempotency": {
+      "type": "string",
+      "enum": ["safe", "unsafe"],
+      "description": "Whether this operation is idempotent."
+    },
+    "retry_policy": {
+      "type": "string",
+      "description": "Retry strategy description (e.g., exponential backoff)."
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum allowed execution time in seconds."
+    },
+    "side_effects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "External side effects produced by this operation."
+    },
+    "execution_hints": {
+      "$ref": "#/definitions/execution_hints",
+      "description": "Non-binding hints for the execution layer."
+    },
+    "generated_from": {
+      "type": "string",
+      "description": "Source artifact this intent was generated from."
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this intent was generated."
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Tool or person that generated this intent."
+    },
+    "mda_layer": {
+      "type": "string",
+      "const": "PIM",
+      "description": "MDA layer designation; always PIM for intent specifications."
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/gap"
+      },
+      "description": "Known gaps or ambiguities in the intent specification."
+    }
+  },
+  "definitions": {
+    "input": {
+      "type": "object",
+      "required": ["name", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the input data element."
+        },
+        "source": {
+          "type": "string",
+          "description": "Where this input comes from."
+        },
+        "schema_ref": {
+          "type": "string",
+          "description": "Reference to the schema defining this input's structure."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether this input is mandatory."
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["name", "type", "sink"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the output data element."
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type of the output."
+        },
+        "sink": {
+          "type": "string",
+          "description": "Where this output is sent."
+        },
+        "invariants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Invariants that apply to this specific output."
+        }
+      }
+    },
+    "failure_mode": {
+      "type": "object",
+      "required": ["mode", "detection", "action"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "description": "Description of the failure mode."
+        },
+        "detection": {
+          "type": "string",
+          "description": "How this failure is detected."
+        },
+        "action": {
+          "type": "string",
+          "description": "What action to take when this failure occurs."
+        }
+      }
+    },
+    "execution_hints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "preferred_agent": {
+          "type": "string",
+          "description": "Suggested agent or service to execute this intent."
+        },
+        "tool_access": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tools the executing agent may need access to."
+        },
+        "forbidden_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Actions the executing agent must not perform."
+        }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "required": ["type", "description", "severity"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Category of the gap."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the gap."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "description": "Severity level of the gap."
+        }
+      }
+    }
+  }
+}

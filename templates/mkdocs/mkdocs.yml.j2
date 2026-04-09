@@ -1,0 +1,68 @@
+site_name: "{{ process_name }} — MDA Intent Layer"
+site_description: "Process navigator for {{ process_name }}"
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/git-alt
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Process Flow:
+    - BPMN Diagram: flow/diagram.md
+    - Process Graph: flow/graph.md
+  - Tasks:
+{%- for task in nav_tasks %}
+    - "{{ task.name }}":
+      - Capsule: tasks/{{ task.slug }}/capsule.md
+      - Intent: tasks/{{ task.slug }}/intent.md
+      - Contract: tasks/{{ task.slug }}/contract.md
+{%- endfor %}
+{%- if nav_decisions %}
+  - Decisions:
+{%- for dec in nav_decisions %}
+    - "{{ dec.name }}":
+      - Capsule: decisions/{{ dec.slug }}/capsule.md
+      - Intent: decisions/{{ dec.slug }}/intent.md
+      - Contract: decisions/{{ dec.slug }}/contract.md
+{%- endfor %}
+{%- endif %}
+{%- if has_corpus %}
+  - Knowledge Corpus:
+{%- for section in corpus_sections %}
+    - "{{ section.type_name }}": corpus/{{ section.type }}.md
+{%- endfor %}
+{%- endif %}
+  - Gaps: gaps/index.md
+  - Audit: audit/index.md

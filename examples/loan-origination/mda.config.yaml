@@ -1,0 +1,43 @@
+process:
+  id: "Process_LoanOrigination"
+  name: "Loan Origination"
+  version: "1.0"
+  domain: "Mortgage Lending"
+  owner_team: "Retail Lending"
+
+source:
+  bpmn_file: "bpmn/loan-origination.bpmn"
+  metadata_file: "bpmn/bpmn-metadata.yaml"
+
+output:
+  triples_dir: "triples"
+  decisions_dir: "decisions"
+  graph_dir: "graph"
+  gaps_dir: "gaps"
+  audit_dir: "audit"
+
+pipeline:
+  version: "0.1.0-demo"
+  mode: "demo"
+  schema_validation: true
+  schemas:
+    capsule: "../../schemas/capsule.schema.json"
+    intent: "../../schemas/intent.schema.json"
+    contract: "../../schemas/contract.schema.json"
+    triple_manifest: "../../schemas/triple-manifest.schema.json"
+  element_mapping: "../../ontology/bpmn-element-mapping.yaml"
+
+defaults:
+  status: "draft"
+  binding_status: "unbound"
+  audit_retention_years: 7
+  mda_layers:
+    capsule: "CIM"
+    intent: "PIM"
+    contract: "PSM"
+
+naming:
+  id_prefix: "LO"
+  capsule_pattern: "CAP-{prefix}-{code}-{seq}"
+  intent_pattern: "INT-{prefix}-{code}-{seq}"
+  contract_pattern: "ICT-{prefix}-{code}-{seq}"

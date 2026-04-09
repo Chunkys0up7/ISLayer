@@ -1,0 +1,91 @@
+{
+  "process_id": "Process_LoanOrigination",
+  "process_name": "Loan Origination",
+  "bpmn_file": "bpmn/loan-origination.bpmn",
+  "generated_date": "2026-04-09T00:00:00Z",
+  "generated_by": "MDA Demo",
+  "pipeline_version": "0.1.0-demo",
+  "triple_count": 10,
+  "triples": [
+    {
+      "triple_id": "LO-APP-001",
+      "directory": "triples/receive-application",
+      "bpmn_task_id": "Task_ReceiveApplication",
+      "bpmn_task_name": "Receive Loan Application",
+      "bpmn_task_type": "receiveTask",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-IDV-001",
+      "directory": "triples/verify-identity",
+      "bpmn_task_id": "Task_VerifyIdentity",
+      "bpmn_task_name": "Verify Borrower Identity",
+      "bpmn_task_type": "serviceTask",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-CRC-001",
+      "directory": "triples/pull-credit",
+      "bpmn_task_id": "Task_PullCredit",
+      "bpmn_task_name": "Pull Credit Report",
+      "bpmn_task_type": "serviceTask",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-DTI-001",
+      "directory": "triples/assess-dti",
+      "bpmn_task_id": "Task_AssessDTI",
+      "bpmn_task_name": "Assess Debt-to-Income Ratio",
+      "bpmn_task_type": "businessRuleTask",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-DOC-001",
+      "directory": "triples/request-docs",
+      "bpmn_task_id": "Task_RequestDocs",
+      "bpmn_task_name": "Request Additional Documentation",
+      "bpmn_task_type": "sendTask",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-PKG-001",
+      "directory": "triples/package-loan",
+      "bpmn_task_id": "Task_PackageLoan",
+      "bpmn_task_name": "Package Loan File",
+      "bpmn_task_type": "task",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-SUB-001",
+      "directory": "triples/submit-underwriting",
+      "bpmn_task_id": "Task_SubmitUW",
+      "bpmn_task_name": "Submit to Underwriting",
+      "bpmn_task_type": "sendTask",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-DEC-001",
+      "directory": "decisions/loan-eligibility",
+      "bpmn_task_id": "Gateway_Eligible",
+      "bpmn_task_name": "Eligible?",
+      "bpmn_task_type": "exclusiveGateway",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-DEC-002",
+      "directory": "decisions/docs-received",
+      "bpmn_task_id": "Gateway_DocsReceived",
+      "bpmn_task_name": "Docs Received?",
+      "bpmn_task_type": "exclusiveGateway",
+      "status": "draft"
+    },
+    {
+      "triple_id": "LO-TMO-001",
+      "directory": "triples/timeout-no-response",
+      "bpmn_task_id": "Boundary_Timeout",
+      "bpmn_task_name": "Timeout - No Response",
+      "bpmn_task_type": "boundaryEvent",
+      "status": "draft"
+    }
+  ]
+}

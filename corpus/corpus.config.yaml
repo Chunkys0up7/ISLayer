@@ -1,0 +1,1701 @@
+# MDA Intent Layer — Knowledge Corpus Index
+# Auto-generated from corpus document frontmatter
+# Regenerate by scanning corpus/**/*.corpus.md
+
+version: "1.0"
+generated_date: "2026-04-09"
+document_count: 46
+
+documents:
+  # ============================================================
+  # PROCEDURES (17 documents)
+  # ============================================================
+
+  - corpus_id: "CRP-PRC-MTG-001"
+    title: "Loan Application Intake Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "procedures/loan-application-intake.corpus.md"
+    tags:
+      - "loan-application"
+      - "intake"
+      - "urla"
+      - "1003"
+      - "loan-estimate"
+      - "initial-disclosures"
+      - "los-entry"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "receive.*application"
+        - "intake.*loan"
+        - "enter.*application"
+        - "generate.*disclosure"
+        - "assign.*processor"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "data_production"
+        - "state_transition"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "intake_specialist"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-MTG-002"
+    title: "Identity Verification Procedure (KYC/BSA)"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "procedures/identity-verification-kyc.corpus.md"
+    tags:
+      - "kyc"
+      - "bsa"
+      - "identity-verification"
+      - "ofac"
+      - "ssn-validation"
+      - "fraud-prevention"
+      - "aml"
+      - "cip"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "verify.*identity"
+        - "kyc.*check"
+        - "ofac.*screen"
+        - "validate.*ssn"
+        - "identity.*fraud"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "compliance_officer"
+        - "intake_specialist"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-MTG-003"
+    title: "Credit Report Ordering and Review Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Credit"
+    path: "procedures/credit-report-procedure.corpus.md"
+    tags:
+      - "credit-report"
+      - "tri-merge"
+      - "credit-score"
+      - "tradeline"
+      - "derogatory"
+      - "representative-score"
+      - "credit-depth"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "pull.*credit"
+        - "credit.*report"
+        - "order.*credit"
+        - "review.*credit"
+        - "credit.*score"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "loan_officer"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-MTG-004"
+    title: "DTI Ratio Assessment Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "procedures/dti-assessment-procedure.corpus.md"
+    tags:
+      - "dti"
+      - "debt-to-income"
+      - "front-end-ratio"
+      - "back-end-ratio"
+      - "housing-ratio"
+      - "qualifying-ratios"
+      - "compensating-factors"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "assess.*dti"
+        - "debt.*income"
+        - "calculate.*ratio"
+        - "dti.*calculation"
+        - "qualify.*income"
+      task_types:
+        - "userTask"
+        - "businessRuleTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-MTG-005"
+    title: "Document Request and Follow-Up Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "procedures/document-request-procedure.corpus.md"
+    tags:
+      - "document-request"
+      - "follow-up"
+      - "missing-documents"
+      - "borrower-communication"
+      - "escalation"
+      - "document-collection"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "request.*doc"
+        - "follow.*up.*doc"
+        - "missing.*doc"
+        - "send.*request"
+      task_types:
+        - "userTask"
+        - "sendTask"
+      goal_types:
+        - "notification"
+        - "data_production"
+      roles:
+        - "loan_processor"
+        - "loan_officer"
+        - "document_specialist"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-MTG-006"
+    title: "Loan File Packaging Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "procedures/loan-file-packaging.corpus.md"
+    tags:
+      - "file-packaging"
+      - "stacking-order"
+      - "loan-submission"
+      - "quality-check"
+      - "document-indexing"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "package.*loan"
+        - "assemble.*file"
+        - "stack.*order"
+        - "submit.*file"
+        - "prepare.*submission"
+      task_types:
+        - "userTask"
+        - "manualTask"
+      goal_types:
+        - "data_production"
+        - "state_transition"
+      roles:
+        - "loan_processor"
+        - "quality_control_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-MTG-007"
+    title: "Underwriting Submission Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "procedures/underwriting-submission.corpus.md"
+    tags:
+      - "underwriting"
+      - "aus"
+      - "desktop-underwriter"
+      - "loan-prospector"
+      - "du-findings"
+      - "submission"
+      - "conditions"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "submit.*underwriting"
+        - "run.*aus"
+        - "run.*du"
+        - "run.*lp"
+        - "underwriting.*queue"
+        - "address.*conditions"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+        - "businessRuleTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+        - "state_transition"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "underwriting_manager"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-IV-001"
+    title: "W-2 Income Verification Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "procedures/w2-income-verification.corpus.md"
+    tags:
+      - "w-2"
+      - "wage-income"
+      - "employment-income"
+      - "voe"
+      - "income-verification"
+      - "base-pay"
+      - "overtime"
+      - "bonus"
+      - "commission"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+      task_name_patterns:
+        - "verify.*w-?2"
+        - "verify.*wage"
+        - "verify.*employment.*income"
+        - "review.*w-?2"
+        - "calculate.*w-?2.*income"
+      task_types:
+        - "userTask"
+        - "businessRuleTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "income_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-IV-002"
+    title: "Self-Employment Income Verification Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "procedures/self-employment-income-verification.corpus.md"
+    tags:
+      - "self-employment"
+      - "schedule-c"
+      - "schedule-k1"
+      - "1120s"
+      - "form-1084"
+      - "cash-flow-analysis"
+      - "sole-proprietor"
+      - "partnership"
+      - "s-corp"
+      - "tax-returns"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+      task_name_patterns:
+        - "verify.*self-?employ"
+        - "verify.*se.*income"
+        - "review.*business.*income"
+        - "calculate.*self-?employ"
+        - "analyze.*schedule.*[ck]"
+        - "complete.*1084"
+      task_types:
+        - "userTask"
+        - "businessRuleTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "income_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-IV-003"
+    title: "Qualifying Income Calculation Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "procedures/qualifying-income-calculation.corpus.md"
+    tags:
+      - "qualifying-income"
+      - "income-calculation"
+      - "income-aggregation"
+      - "frequency-conversion"
+      - "variable-income"
+      - "dti"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+        - "Process_DTICalculation"
+      task_name_patterns:
+        - "calc.*qualifying"
+        - "calculate.*income"
+        - "aggregate.*income"
+        - "sum.*income"
+        - "determine.*monthly.*income"
+        - "finalize.*income"
+      task_types:
+        - "userTask"
+        - "businessRuleTask"
+        - "serviceTask"
+      goal_types:
+        - "data_production"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "income_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-PA-001"
+    title: "Appraisal Ordering Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "procedures/appraisal-ordering-procedure.corpus.md"
+    tags:
+      - "appraisal-ordering"
+      - "amc-selection"
+      - "mismo-xml"
+      - "appraiser-independence"
+      - "dodd-frank"
+      - "property-valuation"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalOrdering"
+      task_name_patterns:
+        - "order.*appraisal"
+        - "submit.*appraisal.*order"
+        - "select.*amc"
+        - "assign.*appraiser"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "initiation"
+      roles:
+        - "loan_processor"
+        - "appraisal_coordinator"
+        - "underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-PA-002"
+    title: "Appraisal Report Review Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "procedures/appraisal-report-review.corpus.md"
+    tags:
+      - "appraisal-review"
+      - "uad-xml"
+      - "form-1004"
+      - "form-1073"
+      - "form-2055"
+      - "completeness-check"
+      - "comparable-selection"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalReview"
+      task_name_patterns:
+        - "receive.*report"
+        - "review.*appraisal"
+        - "validate.*completeness"
+        - "check.*appraisal.*report"
+      task_types:
+        - "userTask"
+        - "businessRuleTask"
+      goal_types:
+        - "validation"
+        - "quality_assurance"
+      roles:
+        - "appraisal_reviewer"
+        - "underwriter"
+        - "senior_underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-PA-003"
+    title: "Property Value Assessment Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "procedures/property-value-assessment.corpus.md"
+    tags:
+      - "value-assessment"
+      - "ltv-calculation"
+      - "comparable-adjustments"
+      - "market-conditions"
+      - "property-condition"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_UnderwritingReview"
+        - "Process_LTVCalculation"
+      task_name_patterns:
+        - "assess.*value"
+        - "calculate.*ltv"
+        - "review.*appraised.*value"
+        - "evaluate.*property.*value"
+      task_types:
+        - "userTask"
+        - "businessRuleTask"
+      goal_types:
+        - "validation"
+        - "data_production"
+      roles:
+        - "underwriter"
+        - "senior_underwriter"
+        - "appraisal_reviewer"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-PA-004"
+    title: "Appraisal Revision Request Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "procedures/appraisal-revision-request.corpus.md"
+    tags:
+      - "revision-request"
+      - "reconsideration-of-value"
+      - "appraisal-deficiency"
+      - "amc-communication"
+      - "sla-tracking"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalRevision"
+      task_name_patterns:
+        - "request.*revision"
+        - "reconsider.*value"
+        - "submit.*correction"
+        - "flag.*deficiency"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "remediation"
+      roles:
+        - "appraisal_reviewer"
+        - "underwriter"
+        - "appraisal_coordinator"
+    status: "current"
+
+  - corpus_id: "CRP-PRC-PA-005"
+    title: "Appraisal Manual Review Procedure"
+    doc_type: "procedure"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "procedures/appraisal-manual-review.corpus.md"
+    tags:
+      - "manual-review"
+      - "senior-underwriter"
+      - "ltv-override"
+      - "exception-approval"
+      - "escalation"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_UnderwritingEscalation"
+      task_name_patterns:
+        - "manual.*review"
+        - "escalate.*appraisal"
+        - "senior.*review"
+        - "override.*ltv"
+      task_types:
+        - "userTask"
+      goal_types:
+        - "decision"
+        - "exception_handling"
+      roles:
+        - "senior_underwriter"
+        - "chief_appraiser"
+        - "credit_committee"
+    status: "current"
+
+  # ============================================================
+  # POLICIES (7 documents)
+  # ============================================================
+
+  - corpus_id: "CRP-POL-MTG-001"
+    title: "Credit Report Ordering Policy"
+    doc_type: "policy"
+    domain: "Mortgage Lending"
+    subdomain: "Credit"
+    path: "policies/credit-report-ordering-policy.corpus.md"
+    tags:
+      - "credit-report"
+      - "ordering-policy"
+      - "cost-controls"
+      - "reissue"
+      - "tri-merge"
+      - "bureau-selection"
+      - "permissible-purpose"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "pull.*credit"
+        - "order.*credit"
+        - "credit.*report"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "decision"
+        - "data_production"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "compliance_officer"
+    status: "current"
+
+  - corpus_id: "CRP-POL-MTG-002"
+    title: "Permissible Purpose Policy (FCRA Compliance)"
+    doc_type: "policy"
+    domain: "Mortgage Lending"
+    subdomain: "Credit"
+    path: "policies/permissible-purpose-policy.corpus.md"
+    tags:
+      - "fcra"
+      - "permissible-purpose"
+      - "credit-authorization"
+      - "compliance"
+      - "audit-trail"
+      - "prohibited-inquiries"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "pull.*credit"
+        - "credit.*authorization"
+        - "permissible.*purpose"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "decision"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "compliance_officer"
+    status: "current"
+
+  - corpus_id: "CRP-POL-MTG-010"
+    title: "General Document Retention Policy"
+    doc_type: "policy"
+    domain: "Mortgage Lending"
+    subdomain: "Compliance"
+    path: "policies/document-retention-policy.corpus.md"
+    tags:
+      - "policy"
+      - "retention"
+      - "compliance"
+      - "document-management"
+      - "records"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+        - "PRC-MTG-INCV-001"
+        - "PRC-MTG-APPR-001"
+      task_name_patterns:
+        - "*_document_*"
+        - "*_record_*"
+        - "*_retention_*"
+      task_types:
+        - "origination"
+        - "verification"
+        - "appraisal"
+        - "closing"
+        - "post_closing"
+        - "document_management"
+      goal_types:
+        - "compliance"
+        - "risk_management"
+        - "audit"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "closer"
+        - "compliance_officer"
+        - "records_manager"
+    status: "current"
+
+  - corpus_id: "CRP-POL-IV-001"
+    title: "W-2 Income Verification Policy"
+    doc_type: "policy"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "policies/w2-verification-policy.corpus.md"
+    tags:
+      - "policy"
+      - "voe"
+      - "verbal-voe"
+      - "documentation-age"
+      - "the-work-number"
+      - "verification-sources"
+      - "w-2"
+      - "internal-policy"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+        - "Process_PreClosingQC"
+      task_name_patterns:
+        - "verify.*employment"
+        - "obtain.*voe"
+        - "verbal.*voe"
+        - "check.*documentation.*age"
+        - "validate.*verification.*source"
+      task_types:
+        - "userTask"
+        - "manualTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "closing_coordinator"
+        - "quality_control_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-POL-PA-001"
+    title: "Appraisal Ordering Policy"
+    doc_type: "policy"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "policies/appraisal-ordering-policy.corpus.md"
+    tags:
+      - "appraisal-ordering"
+      - "amc-panel"
+      - "rotation-rules"
+      - "fee-schedule"
+      - "rush-orders"
+      - "appraiser-qualifications"
+      - "property-type"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalOrdering"
+      task_name_patterns:
+        - "order.*appraisal"
+        - "select.*amc"
+        - "manage.*panel"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "governance"
+      roles:
+        - "appraisal_coordinator"
+        - "loan_processor"
+        - "vp_appraisal_operations"
+    status: "current"
+
+  - corpus_id: "CRP-POL-PA-002"
+    title: "AMC Selection and Rotation Policy"
+    doc_type: "policy"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "policies/amc-selection-policy.corpus.md"
+    tags:
+      - "amc-selection"
+      - "amc-rotation"
+      - "performance-scoring"
+      - "blacklist"
+      - "geographic-coverage"
+      - "vendor-management"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalOrdering"
+        - "Process_VendorManagement"
+      task_name_patterns:
+        - "order.*appraisal"
+        - "select.*amc"
+        - "rotate.*amc"
+        - "evaluate.*vendor"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+      goal_types:
+        - "governance"
+      roles:
+        - "appraisal_coordinator"
+        - "vp_appraisal_operations"
+        - "vendor_manager"
+    status: "current"
+
+  # ============================================================
+  # REGULATIONS (8 documents)
+  # ============================================================
+
+  - corpus_id: "CRP-REG-MTG-001"
+    title: "Fair Credit Reporting Act (FCRA) / Regulation V Summary"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Compliance"
+    path: "regulations/fcra-summary.corpus.md"
+    tags:
+      - "regulation"
+      - "FCRA"
+      - "RegV"
+      - "credit-reporting"
+      - "consumer-rights"
+      - "compliance"
+      - "permissible-purpose"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+      task_name_patterns:
+        - "*_credit_*"
+        - "*_underwriting_*"
+        - "*_application_*"
+      task_types:
+        - "origination"
+        - "underwriting"
+        - "credit_check"
+        - "compliance"
+      goal_types:
+        - "compliance"
+        - "consumer_protection"
+        - "credit_reporting"
+      roles:
+        - "loan_officer"
+        - "underwriter"
+        - "compliance_officer"
+        - "loan_processor"
+    status: "current"
+
+  - corpus_id: "CRP-REG-MTG-002"
+    title: "Truth in Lending Act (TILA) / Regulation Z Summary"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Compliance"
+    path: "regulations/tila-summary.corpus.md"
+    tags:
+      - "regulation"
+      - "TILA"
+      - "RegZ"
+      - "disclosures"
+      - "APR"
+      - "compliance"
+      - "TRID"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+      task_name_patterns:
+        - "*_disclosure_*"
+        - "*_origination_*"
+        - "*_closing_*"
+        - "*_apr_*"
+      task_types:
+        - "origination"
+        - "disclosures"
+        - "closing"
+        - "compliance"
+      goal_types:
+        - "compliance"
+        - "consumer_protection"
+        - "disclosure"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "closer"
+        - "compliance_officer"
+    status: "current"
+
+  - corpus_id: "CRP-REG-MTG-003"
+    title: "Equal Credit Opportunity Act (ECOA) / Regulation B Summary"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Compliance"
+    path: "regulations/ecoa-summary.corpus.md"
+    tags:
+      - "regulation"
+      - "ECOA"
+      - "RegB"
+      - "fair-lending"
+      - "discrimination"
+      - "adverse-action"
+      - "compliance"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+        - "PRC-MTG-INCV-001"
+      task_name_patterns:
+        - "*_application_*"
+        - "*_underwriting_*"
+        - "*_decision_*"
+        - "*_adverse_*"
+        - "*_income_*"
+      task_types:
+        - "origination"
+        - "underwriting"
+        - "verification"
+        - "compliance"
+      goal_types:
+        - "compliance"
+        - "fair_lending"
+        - "consumer_protection"
+      roles:
+        - "loan_officer"
+        - "underwriter"
+        - "compliance_officer"
+        - "loan_processor"
+    status: "current"
+
+  - corpus_id: "CRP-REG-IV-001"
+    title: "Fannie Mae Selling Guide B3-3.1 (Income Assessment) Summary"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "regulations/fannie-mae-income-summary.corpus.md"
+    tags:
+      - "fannie-mae"
+      - "selling-guide"
+      - "b3-3.1"
+      - "income-assessment"
+      - "du-validation"
+      - "w-2"
+      - "self-employment"
+      - "gse"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "verify.*income.*conventional"
+        - "apply.*fannie.*rule"
+        - "check.*selling.*guide"
+        - "validate.*fnma"
+        - "du.*income"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "decision"
+        - "data_production"
+      roles:
+        - "underwriter"
+        - "loan_processor"
+        - "compliance_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-REG-IV-002"
+    title: "FHA 4000.1 Income Requirements Summary"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "regulations/fha-income-requirements.corpus.md"
+    tags:
+      - "fha"
+      - "hud"
+      - "4000.1"
+      - "effective-income"
+      - "income-requirements"
+      - "government-loan"
+      - "voe"
+      - "tax-transcripts"
+      - "self-employment"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+        - "Process_FHALoanOrigination"
+      task_name_patterns:
+        - "verify.*income.*fha"
+        - "apply.*fha.*rule"
+        - "check.*4000\\.1"
+        - "validate.*fha"
+        - "fha.*income"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "decision"
+        - "data_production"
+      roles:
+        - "underwriter"
+        - "loan_processor"
+        - "compliance_analyst"
+        - "de_underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-REG-PA-001"
+    title: "USPAP Standards Summary"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "regulations/uspap-standards-summary.corpus.md"
+    tags:
+      - "uspap"
+      - "appraisal-standards"
+      - "ethics-rule"
+      - "competency-rule"
+      - "scope-of-work"
+      - "standards-rule-1"
+      - "standards-rule-2"
+      - "appraiser-independence"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+      task_name_patterns:
+        - ".*appraisal.*"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "compliance"
+        - "validation"
+      roles:
+        - "appraisal_reviewer"
+        - "underwriter"
+        - "senior_underwriter"
+        - "chief_appraiser"
+        - "compliance_officer"
+    status: "current"
+
+  - corpus_id: "CRP-REG-PA-002"
+    title: "Appraiser Independence Requirements (Dodd-Frank Section 1472)"
+    doc_type: "regulation"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "regulations/appraiser-independence-requirements.corpus.md"
+    tags:
+      - "appraiser-independence"
+      - "dodd-frank-1472"
+      - "coercion"
+      - "amc-requirements"
+      - "prohibited-practices"
+      - "reporting-channels"
+      - "firrea"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalOrdering"
+      task_name_patterns:
+        - "order.*appraisal"
+        - "verify.*independence"
+        - "check.*compliance"
+        - "submit.*order"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "compliance"
+      roles:
+        - "loan_processor"
+        - "appraisal_coordinator"
+        - "underwriter"
+        - "compliance_officer"
+        - "loan_officer"
+    status: "current"
+
+  # ============================================================
+  # RULES (8 documents)
+  # ============================================================
+
+  - corpus_id: "CRP-RUL-MTG-001"
+    title: "Loan Eligibility Decision Matrix"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "rules/loan-eligibility-matrix.corpus.md"
+    tags:
+      - "eligibility"
+      - "credit-score"
+      - "ltv"
+      - "dti"
+      - "loan-program"
+      - "property-type"
+      - "occupancy"
+      - "decision-matrix"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "eligible"
+        - "eligibility"
+        - "program.*select"
+        - "qualify.*loan"
+        - "check.*eligibility"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "decision"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-RUL-MTG-002"
+    title: "Document Completeness Checklist"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "rules/document-completeness-checklist.corpus.md"
+    tags:
+      - "document-checklist"
+      - "completeness"
+      - "required-documents"
+      - "loan-program"
+      - "income-docs"
+      - "asset-docs"
+      - "property-docs"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "doc.*received"
+        - "completeness"
+        - "check.*document"
+        - "verify.*complete"
+        - "missing.*doc"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "decision"
+        - "data_production"
+      roles:
+        - "loan_processor"
+        - "document_specialist"
+        - "quality_control_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-RUL-MTG-003"
+    title: "DTI Threshold Rules by Loan Program"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "rules/dti-threshold-rules.corpus.md"
+    tags:
+      - "dti"
+      - "debt-to-income"
+      - "threshold"
+      - "decision-table"
+      - "compensating-factors"
+      - "front-end-ratio"
+      - "back-end-ratio"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - "dti.*threshold"
+        - "dti.*limit"
+        - "dti.*exceed"
+        - "ratio.*check"
+        - "qualify.*dti"
+      task_types:
+        - "businessRuleTask"
+      goal_types:
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-RUL-IV-001"
+    title: "Employment Type Classification Rules"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "rules/employment-type-classification.corpus.md"
+    tags:
+      - "employment-classification"
+      - "w-2"
+      - "self-employed"
+      - "commissioned"
+      - "part-time"
+      - "gig-economy"
+      - "1099"
+      - "ownership"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+      task_name_patterns:
+        - "classify.*employment"
+        - "employment.*type"
+        - "determine.*employment"
+        - "identify.*income.*type"
+        - "categorize.*borrower"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "income_analyst"
+        - "loan_officer"
+    status: "current"
+
+  - corpus_id: "CRP-RUL-IV-002"
+    title: "Income Variance Threshold Rules"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "rules/income-variance-thresholds.corpus.md"
+    tags:
+      - "variance"
+      - "threshold"
+      - "stated-income"
+      - "verified-income"
+      - "exception"
+      - "declining-income"
+      - "trending"
+      - "tolerance"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+        - "Process_QualityControl"
+      task_name_patterns:
+        - "variance.*threshold"
+        - "check.*variance"
+        - "compare.*stated.*verified"
+        - "income.*tolerance"
+        - "validate.*income.*amount"
+        - "declining.*income"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "quality_control_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-RUL-PA-001"
+    title: "Appraisal Completeness Checklist"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "rules/appraisal-completeness-checklist.corpus.md"
+    tags:
+      - "completeness-checklist"
+      - "appraisal-validation"
+      - "uspap-compliance"
+      - "photo-requirements"
+      - "comparable-sales"
+      - "appraiser-certification"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalReview"
+      task_name_patterns:
+        - "completeness"
+        - "check.*appraisal"
+        - "validate.*report"
+        - "verify.*sections"
+      task_types:
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "validation"
+      roles:
+        - "appraisal_reviewer"
+        - "underwriter"
+    status: "current"
+
+  - corpus_id: "CRP-RUL-PA-002"
+    title: "LTV Threshold Rules by Loan Program"
+    doc_type: "rule"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "rules/ltv-threshold-rules.corpus.md"
+    tags:
+      - "ltv"
+      - "loan-to-value"
+      - "cltv"
+      - "pmi"
+      - "conventional"
+      - "fha"
+      - "va"
+      - "usda"
+      - "jumbo"
+      - "property-type"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_UnderwritingReview"
+        - "Process_LTVCalculation"
+      task_name_patterns:
+        - "ltv"
+        - "loan.*to.*value"
+        - "calculate.*ltv"
+        - "check.*ltv"
+        - "verify.*ltv"
+      task_types:
+        - "businessRuleTask"
+      goal_types:
+        - "validation"
+        - "decision"
+      roles:
+        - "underwriter"
+        - "senior_underwriter"
+        - "loan_processor"
+    status: "current"
+
+  # ============================================================
+  # DATA-DICTIONARY (4 documents)
+  # ============================================================
+
+  - corpus_id: "CRP-DAT-MTG-001"
+    title: "Loan Application Data Object"
+    doc_type: "data-dictionary"
+    domain: "Mortgage Lending"
+    subdomain: "Loan Origination"
+    path: "data-dictionary/loan-application-data.corpus.md"
+    tags:
+      - "data-object"
+      - "loan-application"
+      - "los"
+      - "urla"
+      - "schema"
+      - "loan-data"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - ".*loan.*"
+        - ".*application.*"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+        - "businessRuleTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+        - "state_transition"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "underwriter"
+        - "closer"
+    status: "current"
+
+  - corpus_id: "CRP-DAT-MTG-002"
+    title: "Credit Report Data Object"
+    doc_type: "data-dictionary"
+    domain: "Mortgage Lending"
+    subdomain: "Credit"
+    path: "data-dictionary/credit-report-data.corpus.md"
+    tags:
+      - "data-object"
+      - "credit-report"
+      - "fico-score"
+      - "tradeline"
+      - "public-records"
+      - "fraud-alert"
+      - "credit-data"
+    applies_to:
+      process_ids:
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - ".*credit.*"
+        - ".*score.*"
+        - ".*tradeline.*"
+      task_types:
+        - "userTask"
+        - "serviceTask"
+        - "businessRuleTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "loan_officer"
+    status: "current"
+
+  - corpus_id: "CRP-DAT-IV-001"
+    title: "Income Verification Data Objects"
+    doc_type: "data-dictionary"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "data-dictionary/income-verification-data.corpus.md"
+    tags:
+      - "data-dictionary"
+      - "data-objects"
+      - "borrower-income"
+      - "income-source"
+      - "verification-result"
+      - "schema"
+      - "field-definitions"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_UnderwritingReview"
+        - "Process_DTICalculation"
+        - "Process_LoanOrigination"
+      task_name_patterns:
+        - ".*income.*"
+        - ".*verification.*"
+        - ".*qualifying.*"
+        - ".*dti.*"
+      task_types:
+        - "serviceTask"
+        - "businessRuleTask"
+        - "userTask"
+        - "scriptTask"
+      goal_types:
+        - "data_production"
+        - "decision"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "income_analyst"
+        - "system_integrator"
+        - "data_analyst"
+    status: "current"
+
+  - corpus_id: "CRP-DAT-PA-001"
+    title: "Appraisal Report Data Object"
+    doc_type: "data-dictionary"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "data-dictionary/appraisal-report-data.corpus.md"
+    tags:
+      - "appraisal-report"
+      - "data-object"
+      - "uad"
+      - "condition-rating"
+      - "quality-rating"
+      - "comparable-sales"
+      - "appraiser-info"
+      - "mismo"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+      task_name_patterns:
+        - ".*appraisal.*"
+      task_types:
+        - "serviceTask"
+        - "businessRuleTask"
+        - "userTask"
+      goal_types:
+        - "data_production"
+        - "validation"
+      roles:
+        - "appraisal_reviewer"
+        - "underwriter"
+        - "loan_processor"
+        - "data_analyst"
+    status: "current"
+
+  # ============================================================
+  # SYSTEMS (5 documents)
+  # ============================================================
+
+  - corpus_id: "CRP-SYS-MTG-001"
+    title: "LOS (Loan Origination System) Integration Guide"
+    doc_type: "system"
+    domain: "Mortgage Lending"
+    subdomain: "Core Systems"
+    path: "systems/los-integration-guide.corpus.md"
+    tags:
+      - "system"
+      - "integration"
+      - "LOS"
+      - "API"
+      - "REST"
+      - "loan-origination"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+        - "PRC-MTG-INCV-001"
+        - "PRC-MTG-APPR-001"
+      task_name_patterns:
+        - "*_loan_*"
+        - "*_borrower_*"
+        - "*_application_*"
+      task_types:
+        - "origination"
+        - "verification"
+        - "appraisal"
+        - "underwriting"
+        - "closing"
+        - "system_integration"
+      goal_types:
+        - "integration"
+        - "data_exchange"
+        - "automation"
+      roles:
+        - "loan_processor"
+        - "loan_officer"
+        - "underwriter"
+        - "system_administrator"
+        - "developer"
+    status: "current"
+
+  - corpus_id: "CRP-SYS-MTG-002"
+    title: "DocVault Integration Guide"
+    doc_type: "system"
+    domain: "Mortgage Lending"
+    subdomain: "Document Management"
+    path: "systems/docvault-integration-guide.corpus.md"
+    tags:
+      - "system"
+      - "integration"
+      - "document-management"
+      - "OCR"
+      - "API"
+      - "REST"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-INCV-001"
+        - "PRC-MTG-APPR-001"
+      task_name_patterns:
+        - "*_document_*"
+        - "*_upload_*"
+        - "*_retrieve_*"
+        - "*_verify_*"
+      task_types:
+        - "verification"
+        - "appraisal"
+        - "document_management"
+        - "processing"
+      goal_types:
+        - "integration"
+        - "document_storage"
+        - "data_extraction"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "appraiser"
+        - "compliance_officer"
+        - "system_administrator"
+    status: "current"
+
+  - corpus_id: "CRP-SYS-MTG-003"
+    title: "Event Bus Integration Guide"
+    doc_type: "system"
+    domain: "Mortgage Lending"
+    subdomain: "Core Systems"
+    path: "systems/event-bus-guide.corpus.md"
+    tags:
+      - "system"
+      - "integration"
+      - "event-bus"
+      - "kafka"
+      - "event-driven"
+      - "messaging"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+        - "PRC-MTG-INCV-001"
+        - "PRC-MTG-APPR-001"
+      task_name_patterns:
+        - "*_event_*"
+        - "*_publish_*"
+        - "*_subscribe_*"
+      task_types:
+        - "origination"
+        - "verification"
+        - "appraisal"
+        - "event_processing"
+        - "system_integration"
+      goal_types:
+        - "integration"
+        - "event_processing"
+        - "automation"
+      roles:
+        - "system_administrator"
+        - "developer"
+        - "loan_processor"
+    status: "current"
+
+  - corpus_id: "CRP-SYS-IV-002"
+    title: "IVES (IRS Income Verification Express Service) Guide"
+    doc_type: "system"
+    domain: "Mortgage Lending"
+    subdomain: "Income Verification"
+    path: "systems/ives-guide.corpus.md"
+    tags:
+      - "ives"
+      - "irs"
+      - "4506-c"
+      - "tax-transcript"
+      - "income-verification"
+      - "system-integration"
+      - "batch-processing"
+      - "transcript-retrieval"
+    applies_to:
+      process_ids:
+        - "Process_IncomeVerification"
+        - "Process_TranscriptRetrieval"
+        - "Process_QualityControl"
+      task_name_patterns:
+        - "order.*transcript"
+        - "retrieve.*transcript"
+        - "submit.*4506"
+        - "ives.*request"
+        - "irs.*transcript"
+        - "validate.*tax.*return"
+      task_types:
+        - "serviceTask"
+        - "sendTask"
+        - "receiveTask"
+        - "userTask"
+      goal_types:
+        - "data_production"
+        - "orchestration"
+      roles:
+        - "loan_processor"
+        - "underwriter"
+        - "ives_coordinator"
+        - "quality_control_analyst"
+        - "system_integrator"
+    status: "current"
+
+  - corpus_id: "CRP-SYS-PA-001"
+    title: "Appraisal Portal Integration Guide"
+    doc_type: "system"
+    domain: "Mortgage Lending"
+    subdomain: "Property Appraisal"
+    path: "systems/appraisal-portal-guide.corpus.md"
+    tags:
+      - "appraisal-portal"
+      - "amc-api"
+      - "mismo-xml"
+      - "uad-xml"
+      - "webhooks"
+      - "order-management"
+      - "report-retrieval"
+      - "error-codes"
+    applies_to:
+      process_ids:
+        - "Process_PropertyAppraisal"
+        - "Process_AppraisalOrdering"
+        - "Process_SystemIntegration"
+      task_name_patterns:
+        - "order.*appraisal"
+        - "submit.*order"
+        - "receive.*report"
+        - "poll.*status"
+        - "retrieve.*appraisal"
+      task_types:
+        - "serviceTask"
+      goal_types:
+        - "system_integration"
+      roles:
+        - "appraisal_coordinator"
+        - "system_administrator"
+        - "integration_engineer"
+        - "loan_processor"
+    status: "current"
+
+  # ============================================================
+  # TRAINING (1 document)
+  # ============================================================
+
+  - corpus_id: "CRP-TRN-MTG-001"
+    title: "Loan Processor Onboarding Guide"
+    doc_type: "training"
+    domain: "Mortgage Lending"
+    subdomain: "Operations"
+    path: "training/loan-processor-onboarding.corpus.md"
+    tags:
+      - "training"
+      - "onboarding"
+      - "loan-processor"
+      - "mortgage-process"
+      - "roles"
+      - "systems"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+        - "PRC-MTG-INCV-001"
+        - "PRC-MTG-APPR-001"
+      task_name_patterns:
+        - "*"
+      task_types:
+        - "origination"
+        - "verification"
+        - "appraisal"
+        - "processing"
+        - "training"
+      goal_types:
+        - "training"
+        - "onboarding"
+        - "reference"
+      roles:
+        - "loan_processor"
+        - "loan_officer"
+        - "underwriter"
+        - "trainee"
+    status: "current"
+
+  # ============================================================
+  # GLOSSARY (1 document)
+  # ============================================================
+
+  - corpus_id: "CRP-GLO-MTG-001"
+    title: "Mortgage Lending Glossary"
+    doc_type: "glossary"
+    domain: "Mortgage Lending"
+    subdomain: "General"
+    path: "glossary/mortgage-lending-glossary.corpus.md"
+    tags:
+      - "glossary"
+      - "terminology"
+      - "mortgage"
+      - "lending"
+      - "definitions"
+    applies_to:
+      process_ids:
+        - "PRC-MTG-ORIG-001"
+        - "PRC-MTG-INCV-001"
+        - "PRC-MTG-APPR-001"
+      task_name_patterns:
+        - "*"
+      task_types:
+        - "origination"
+        - "verification"
+        - "appraisal"
+        - "underwriting"
+        - "closing"
+      goal_types:
+        - "reference"
+        - "training"
+        - "compliance"
+      roles:
+        - "loan_officer"
+        - "loan_processor"
+        - "underwriter"
+        - "appraiser"
+        - "closer"
+        - "compliance_officer"
+    status: "current"

@@ -1,0 +1,18 @@
+{
+  "triple_id": "PA-DEC-002",
+  "capsule_id": "CAP-PA-DEC-002",
+  "intent_id": "INT-PA-DEC-002",
+  "contract_id": "ICT-PA-DEC-002",
+  "bpmn_task_id": "Gateway_LTV",
+  "bpmn_process_id": "Process_PropertyAppraisal",
+  "status": "draft",
+  "version": "1.0",
+  "created": "2026-04-09T10:00:00Z",
+  "last_validated": null,
+  "validation_result": null,
+  "provenance": {
+    "bpmn_file": "bpmn/property-appraisal.bpmn",
+    "bpmn_file_hash": "sha256:placeholder0000000000000000000000000000000000000000000000000000",
+    "pipeline_version": "1.0.0"
+  }
+}

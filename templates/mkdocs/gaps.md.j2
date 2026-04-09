@@ -1,0 +1,20 @@
+# Gaps
+
+{% if gaps %}
+| ID | Severity | Type | Triple | Description |
+|----|----------|------|--------|-------------|
+{% for g in gaps -%}
+| {{ g.id }} | {{ g.severity }} | {{ g.type }} | {{ g.triple }} | {{ g.description }} |
+{% endfor %}
+
+## Summary
+
+| Severity | Count |
+|----------|-------|
+| Critical | {{ summary.critical }} |
+| High | {{ summary.high }} |
+| Medium | {{ summary.medium }} |
+| Low | {{ summary.low }} |
+{% else %}
+No gaps found. All triples are fully populated.
+{% endif %}

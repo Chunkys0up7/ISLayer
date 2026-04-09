@@ -1,0 +1,24 @@
+# {{ process_name }}
+
+{{ readme_content }}
+
+---
+
+## Status Dashboard
+
+| Metric | Value |
+|--------|-------|
+| Total Triples | {{ summary.total }} |
+| Draft | {{ summary.by_status.draft }} |
+| Review | {{ summary.by_status.review }} |
+| Current | {{ summary.by_status.current }} |
+| Gaps | {{ summary.gap_count }} |
+| Unbound | {{ summary.unbound_count }} |
+
+## Quick Navigation
+
+| Task | Type | Status | Binding | Gaps |
+|------|------|--------|---------|------|
+{% for t in status_table -%}
+| [{{ t.name }}]({{ t.section }}/{{ t.slug }}/capsule.md) | {{ t.type }} | {{ t.status }} | {{ t.binding }} | {{ t.gaps }} |
+{% endfor %}

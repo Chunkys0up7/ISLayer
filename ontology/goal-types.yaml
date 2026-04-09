@@ -1,0 +1,60 @@
+# MDA Intent Layer — Goal Type Ontology
+# Defines the allowed values for goal_type in intent specifications
+
+goal_types:
+  - id: data_production
+    name: Data Production
+    description: "The intent produces new data or transforms existing data into a required output"
+    examples:
+      - "Calculate verified income from tax returns"
+      - "Generate credit score summary"
+      - "Extract borrower information from application"
+    typical_bpmn_elements:
+      - serviceTask
+      - scriptTask
+      - userTask
+      - manualTask
+
+  - id: decision
+    name: Decision
+    description: "The intent evaluates conditions and produces a routing decision or classification"
+    examples:
+      - "Determine loan eligibility based on DTI ratio"
+      - "Classify employment type as W-2 or self-employed"
+    typical_bpmn_elements:
+      - businessRuleTask
+      - exclusiveGateway
+      - inclusiveGateway
+      - eventBasedGateway
+
+  - id: notification
+    name: Notification
+    description: "The intent sends a message, alert, or signal to another system or participant"
+    examples:
+      - "Notify underwriter of completed income verification"
+      - "Send document request to borrower"
+    typical_bpmn_elements:
+      - sendTask
+      - intermediateThrowEvent
+
+  - id: state_transition
+    name: State Transition
+    description: "The intent moves a business entity from one state to another"
+    examples:
+      - "Move loan from 'application' to 'processing' state"
+      - "Mark appraisal as 'received'"
+    typical_bpmn_elements:
+      - receiveTask
+      - startEvent
+      - endEvent
+      - intermediateCatchEvent
+
+  - id: orchestration
+    name: Orchestration
+    description: "The intent coordinates multiple sub-intents or manages parallel execution"
+    examples:
+      - "Coordinate parallel credit check and income verification"
+      - "Manage sub-process for document collection"
+    typical_bpmn_elements:
+      - callActivity
+      - subProcess

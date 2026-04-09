@@ -1,0 +1,248 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mda-intent-engine.dev/schemas/contract.schema.json",
+  "title": "MDA Intent Layer Integration Contract",
+  "description": "Validates the YAML frontmatter of .contract.md (Integration Contract) files in the MDA Intent Layer BPMN-to-Intent-Spec generation system.",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "intent_id",
+    "version",
+    "status",
+    "binding_status",
+    "generated_from",
+    "generated_date",
+    "generated_by"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract_id": {
+      "type": "string",
+      "pattern": "^ICT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Unique identifier for this integration contract."
+    },
+    "intent_id": {
+      "type": "string",
+      "pattern": "^INT-[A-Z]{2,3}-[A-Z]{3}-\\d{3}$",
+      "description": "Cross-reference to the corresponding Intent Specification."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version in MAJOR.MINOR format."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "current", "deprecated", "archived"],
+      "description": "Lifecycle status of this contract."
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/source"
+      },
+      "description": "Data sources this contract integrates with."
+    },
+    "sinks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/sink"
+      },
+      "description": "Data sinks this contract writes to."
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/event"
+      },
+      "description": "Events produced or consumed by this contract."
+    },
+    "rule_engines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/rule_engine"
+      },
+      "description": "Rule engines used for business logic evaluation."
+    },
+    "audit": {
+      "$ref": "#/definitions/audit",
+      "description": "Audit trail configuration."
+    },
+    "generated_from": {
+      "type": "string",
+      "description": "Source artifact this contract was generated from."
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this contract was generated."
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Tool or person that generated this contract."
+    },
+    "mda_layer": {
+      "type": "string",
+      "const": "PSM",
+      "description": "MDA layer designation; always PSM for integration contracts."
+    },
+    "binding_status": {
+      "type": "string",
+      "enum": ["unbound", "partial", "bound"],
+      "description": "Whether all sources and sinks have been resolved to concrete endpoints."
+    },
+    "unbound_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of sources that have not yet been bound to concrete endpoints."
+    },
+    "unbound_sinks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of sinks that have not yet been bound to concrete endpoints."
+    }
+  },
+  "definitions": {
+    "source": {
+      "type": "object",
+      "required": ["name", "protocol", "endpoint"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Logical name of this data source."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["rest", "grpc", "graphql", "soap", "jdbc", "file", "message_queue"],
+          "description": "Communication protocol."
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "URI or connection string for the source."
+        },
+        "auth": {
+          "type": "string",
+          "description": "Authentication mechanism (e.g., oauth2, api_key, mtls)."
+        },
+        "schema_ref": {
+          "type": "string",
+          "description": "Reference to the schema defining the data structure."
+        },
+        "sla_ms": {
+          "type": "integer",
+          "description": "Expected response time SLA in milliseconds."
+        }
+      }
+    },
+    "sink": {
+      "type": "object",
+      "required": ["name", "protocol", "endpoint"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Logical name of this data sink."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["rest", "grpc", "graphql", "soap", "jdbc", "file", "message_queue"],
+          "description": "Communication protocol."
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "URI or connection string for the sink."
+        },
+        "auth": {
+          "type": "string",
+          "description": "Authentication mechanism."
+        },
+        "schema_ref": {
+          "type": "string",
+          "description": "Reference to the schema defining the data structure."
+        },
+        "sla_ms": {
+          "type": "integer",
+          "description": "Expected response time SLA in milliseconds."
+        },
+        "idempotency_key": {
+          "type": "string",
+          "description": "Field or expression used as the idempotency key for writes."
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "required": ["topic"],
+      "additionalProperties": false,
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "Event topic or channel name."
+        },
+        "schema_ref": {
+          "type": "string",
+          "description": "Reference to the event payload schema."
+        },
+        "delivery": {
+          "type": "string",
+          "enum": ["at_least_once", "at_most_once", "exactly_once"],
+          "description": "Delivery guarantee semantics."
+        },
+        "key_field": {
+          "type": "string",
+          "description": "Field used as the partition or ordering key."
+        }
+      }
+    },
+    "rule_engine": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the rule engine."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the rule engine."
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Endpoint for rule engine access."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "required": ["record_type", "retention_years", "sink"],
+      "additionalProperties": false,
+      "properties": {
+        "record_type": {
+          "type": "string",
+          "description": "Type of audit record to produce."
+        },
+        "retention_years": {
+          "type": "integer",
+          "description": "Number of years audit records must be retained."
+        },
+        "fields_required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields that must be present in every audit record."
+        },
+        "sink": {
+          "type": "string",
+          "description": "Destination for audit records."
+        }
+      }
+    }
+  }
+}

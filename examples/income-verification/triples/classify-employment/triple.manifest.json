@@ -1,0 +1,18 @@
+{
+  "triple_id": "IV-CLS-001",
+  "capsule_id": "CAP-IV-CLS-001",
+  "intent_id": "INT-IV-CLS-001",
+  "contract_id": "ICT-IV-CLS-001",
+  "bpmn_task_id": "Task_ClassifyEmployment",
+  "bpmn_process_id": "Process_IncomeVerification",
+  "status": "draft",
+  "version": "1.0",
+  "created": "2026-04-09T00:00:00Z",
+  "last_validated": null,
+  "validation_result": null,
+  "provenance": {
+    "bpmn_file": "income-verification.bpmn",
+    "bpmn_file_hash": "sha256:pending",
+    "pipeline_version": "0.1.0-demo"
+  }
+}
