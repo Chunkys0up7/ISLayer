@@ -10,13 +10,11 @@
 
 # --- Identity ---------------------------------------------------------------
 # intent_id         Globally unique ID for this intent. Convention: INT-<domain>-<seq>
-# intent_name       Human-readable name describing the agent's goal.
 # bpmn_task_id      The BPMN task element this intent maps to (must match the paired capsule).
 # bpmn_task_name    Human-readable BPMN task name (must match the paired capsule).
 # process_id        Parent BPMN process or sub-process ID.
 # process_name      Human-readable name of the parent process.
 intent_id: "INT-{DOMAIN}-{SEQ}"
-intent_name: "{Verb-phrase describing the agent goal, e.g. Validate Invoice Line Items}"
 bpmn_task_id: "{BPMN_TASK_ID}"
 bpmn_task_name: "{BPMN Task Name}"
 process_id: "{PROCESS_ID}"
@@ -80,11 +78,11 @@ max_retries: 3
 
 # --- Triple Linkage ----------------------------------------------------------
 # capsule_id        ID of the paired Knowledge Capsule (CAP-*).
-# contract_id       ID of the paired Integration Contract (CON-*).
+# contract_id       ID of the paired Integration Contract (ICT-*).
 # predecessor_ids   Intent IDs for tasks that must complete before this one.
 # successor_ids     Intent IDs for tasks that follow this one.
 capsule_id: "CAP-{DOMAIN}-{SEQ}"
-contract_id: "CON-{DOMAIN}-{SEQ}"
+contract_id: "ICT-{DOMAIN}-{SEQ}"
 predecessor_ids:
   - "{INT-DOMAIN-SEQ}"
 successor_ids:
@@ -190,6 +188,6 @@ The agent MUST NOT:
 
 | Field | Value |
 |-------|-------|
-| Contract ID | `CON-{DOMAIN}-{SEQ}` |
+| Contract ID | `ICT-{DOMAIN}-{SEQ}` |
 | Contract Name | {Contract Name} |
 | Location | `contracts/{contract-filename}.contract.md` |

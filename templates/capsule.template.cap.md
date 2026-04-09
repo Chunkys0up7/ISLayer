@@ -63,13 +63,13 @@ policy_refs:
 
 # --- Triple Linkage ----------------------------------------------------------
 # intent_id            ID of the paired Intent Specification (INT-*).
-# contract_id          ID of the paired Integration Contract (CON-*).
+# contract_id          ID of the paired Integration Contract (ICT-*).
 # parent_capsule_id    If this capsule is a decomposition of a higher-level capsule, reference it here.
 # predecessor_ids      Capsule IDs for tasks that must complete before this one (sequence flow).
 # successor_ids        Capsule IDs for tasks that follow this one.
 # exception_ids        Capsule IDs for exception-handling or compensation tasks linked to this one.
 intent_id: "INT-{DOMAIN}-{SEQ}"
-contract_id: "CON-{DOMAIN}-{SEQ}"
+contract_id: "ICT-{DOMAIN}-{SEQ}"
 parent_capsule_id: ""
 predecessor_ids:
   - "{CAP-DOMAIN-SEQ}"

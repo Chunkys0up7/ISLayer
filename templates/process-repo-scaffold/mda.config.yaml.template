@@ -1,0 +1,35 @@
+mda:
+  version: "1.0.0"
+
+process:
+  id: "{{PROCESS_ID}}"
+  name: "{{PROCESS_NAME}}"
+  domain: "{{DOMAIN}}"
+
+paths:
+  bpmn: "bpmn/"
+  triples: "triples/"
+  decisions: "decisions/"
+  graph: "graph/"
+  gaps: "gaps/"
+  audit: "audit/"
+  corpus: "../../corpus"
+
+naming:
+  id_prefix: "{{ID_PREFIX}}"
+
+llm:
+  provider: "anthropic"
+  model: "claude-sonnet-4-20250514"
+  api_key_env: "ANTHROPIC_API_KEY"
+  temperature: 0.2
+  max_tokens: 4096
+
+pipeline:
+  schemas: "../../schemas/"
+  ontology: "../../ontology/"
+
+defaults:
+  status: "draft"
+  binding_status: "unbound"
+  audit_retention_years: 7

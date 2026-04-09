@@ -8,6 +8,7 @@ process_name: "Property Appraisal"
 
 version: "1.0.0"
 status: "draft"
+mda_layer: "PSM"
 
 generated_from: "CAP-PA-MRV-001 + INT-PA-MRV-001"
 generated_date: "2026-04-09"

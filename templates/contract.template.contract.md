@@ -9,14 +9,12 @@
 # ============================================================================
 
 # --- Identity ---------------------------------------------------------------
-# contract_id       Globally unique ID. Convention: CON-<domain>-<seq>
-# contract_name     Human-readable name describing what this contract binds.
+# contract_id       Globally unique ID. Convention: ICT-<domain>-<seq>
 # bpmn_task_id      The BPMN task element this contract governs (must match capsule and intent).
 # bpmn_task_name    Human-readable BPMN task name.
 # process_id        Parent BPMN process or sub-process ID.
 # process_name      Human-readable name of the parent process.
-contract_id: "CON-{DOMAIN}-{SEQ}"
-contract_name: "{Contract Name -- e.g. Invoice Validation Binding}"
+contract_id: "ICT-{DOMAIN}-{SEQ}"
 bpmn_task_id: "{BPMN_TASK_ID}"
 bpmn_task_name: "{BPMN Task Name}"
 process_id: "{PROCESS_ID}"

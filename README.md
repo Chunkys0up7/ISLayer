@@ -137,6 +137,11 @@ ISLayer/
 - [Corpus Authoring Guide](docs/corpus-authoring.md) --- How to write and maintain corpus documents
 - [Triple Review Guide](docs/triple-review.md) --- Review checklists by role
 
+### Specifications
+
+- [EXECUTION-SPEC.md](EXECUTION-SPEC.md) --- Complete build-from-scratch specification (5,342 lines)
+- [TEST-SPEC.md](TEST-SPEC.md) --- Test suite recreation specification (1,251 lines)
+
 ### Architecture and Governance
 
 - [Methodology](METHODOLOGY.md) --- MDA alignment, core principles, glossary
@@ -146,4 +151,4 @@ ISLayer/
 
 ## License
 
-License terms to be determined.
+This project is licensed under the MIT License --- see [LICENSE](LICENSE) for details.

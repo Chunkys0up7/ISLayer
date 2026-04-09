@@ -1,0 +1,20 @@
+# {{PROCESS_NAME}}
+
+Process repository for the MDA Intent Layer.
+
+## Structure
+
+- `bpmn/` — Source BPMN 2.0 XML files
+- `triples/` — Generated task triples (capsule + intent + contract)
+- `decisions/` — Generated decision triples (gateways)
+- `graph/` — Process flow visualizations
+- `gaps/` — Unresolved enrichment gaps
+- `audit/` — Ingestion and change logs
+
+## Getting Started
+
+1. Place your BPMN file in `bpmn/`
+2. Run `python <path-to-cli>/mda.py ingest bpmn/<your-file>.bpmn`
+3. Review generated triples
+4. Run `python <path-to-cli>/mda.py test` to validate
+5. Run `python <path-to-cli>/mda.py docs serve` to browse

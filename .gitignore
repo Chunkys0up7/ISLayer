@@ -61,5 +61,9 @@ examples/*/docs/
 examples/*/site/
 examples/*/mkdocs.yml
 
+# MkDocs generated (root level)
+site/
+mkdocs.yml
+
 # Claude Code
 .claude/
