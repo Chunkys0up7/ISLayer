@@ -70,6 +70,16 @@ mda-intent-engine/
 
 ## Documentation
 
+### User Guides
+
+- [docs/getting-started.md](docs/getting-started.md) --- Quick start: install, explore demos, create your first process
+- [docs/cli-reference.md](docs/cli-reference.md) --- Complete CLI command reference (all 17 commands)
+- [docs/process-owner-guide.md](docs/process-owner-guide.md) --- Day-to-day guide for process owners
+- [docs/corpus-authoring.md](docs/corpus-authoring.md) --- How to write and maintain corpus documents
+- [docs/triple-review.md](docs/triple-review.md) --- Review checklist for triple PRs
+
+### Architecture and Governance
+
 - [METHODOLOGY.md](METHODOLOGY.md) --- Theoretical foundation, MDA alignment, core principles
 - [docs/architecture.md](docs/architecture.md) --- System architecture and design decisions
 - [docs/governance-model.md](docs/governance-model.md) --- Roles, PR workflows, CI/CD requirements
