@@ -5,6 +5,8 @@ bpmn_task_id: "Task_RequestRevision"
 bpmn_task_name: "Request Appraisal Revision"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
+goal: "Submit appraisal revision request to AMC for identified deficiencies"
+goal_type: "notification"
 
 version: "1.0.0"
 status: "draft"
@@ -34,6 +36,7 @@ max_retries: 3
 
 capsule_id: "CAP-PA-REV-001"
 contract_id: "ICT-PA-REV-001"
+contract_ref: "ICT-PA-REV-001"
 predecessor_ids:
   - "INT-PA-VAL-001"
 successor_ids:
@@ -52,6 +55,15 @@ invariants:
 success_criteria:
   - "Revision request transmitted to AMC within 2 minutes of composition."
   - "Zero value-influencing language detected by the compliance filter."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps: []
 ---

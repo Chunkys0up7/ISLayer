@@ -139,6 +139,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
     graph_parser.add_argument("--output", type=Path, help="Output file")
 
+    # --- Verification ---
+    test_parser = subparsers.add_parser(
+        "test", help="Run verification checks on the current process repository"
+    )
+    test_parser.add_argument(
+        "--quick", action="store_true", help="Run only fast checks (B01-B02, T01, T04, C01-C02)"
+    )
+    test_parser.add_argument(
+        "--bpmn", action="store_true", help="Run only BPMN checks (B01-B08)"
+    )
+    test_parser.add_argument(
+        "--triples", action="store_true", help="Run only triple checks (T01-T11)"
+    )
+    test_parser.add_argument(
+        "--corpus", action="store_true", help="Run only corpus checks (C01-C06)"
+    )
+    test_parser.add_argument(
+        "--report", type=Path, metavar="PATH", help="Write YAML report to file"
+    )
+
     # --- Documentation ---
     docs_parser = subparsers.add_parser("docs", help="Generate and serve process documentation")
     docs_sub = docs_parser.add_subparsers(dest="docs_command")
@@ -232,6 +252,10 @@ def main():
             from commands.corpus_cmd import run_corpus
 
             run_corpus(args, config)
+        elif args.command == "test":
+            from commands.test_cmd import run_test
+
+            run_test(args, config)
         elif args.command == "validate":
             from commands.validate_cmd import run_validate
 

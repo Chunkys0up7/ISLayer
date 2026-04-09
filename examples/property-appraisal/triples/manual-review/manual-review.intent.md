@@ -5,6 +5,8 @@ bpmn_task_id: "Task_ManualReview"
 bpmn_task_name: "Flag for Manual Review"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
+goal: "Perform senior underwriter review of appraisal when LTV exceeds program thresholds"
+goal_type: "decision"
 
 version: "1.0.0"
 status: "draft"
@@ -34,6 +36,7 @@ max_retries: 0
 
 capsule_id: "CAP-PA-MRV-001"
 contract_id: "ICT-PA-MRV-001"
+contract_ref: "ICT-PA-MRV-001"
 predecessor_ids:
   - "INT-PA-ASV-001"
 successor_ids: []
@@ -50,6 +53,15 @@ invariants:
 success_criteria:
   - "Review package assembled within 15 minutes of routing."
   - "Underwriter decision recorded within 2 business days."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps: []
 ---

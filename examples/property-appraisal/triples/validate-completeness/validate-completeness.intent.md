@@ -5,6 +5,8 @@ bpmn_task_id: "Task_ValidateCompleteness"
 bpmn_task_name: "Validate Appraisal Completeness"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
+goal: "Validate appraisal report against completeness checklist per USPAP and agency requirements"
+goal_type: "decision"
 
 version: "1.0.0"
 status: "draft"
@@ -34,6 +36,7 @@ max_retries: 0
 
 capsule_id: "CAP-PA-VAL-001"
 contract_id: "ICT-PA-VAL-001"
+contract_ref: "ICT-PA-VAL-001"
 predecessor_ids:
   - "INT-PA-RCV-001"
 successor_ids:
@@ -53,6 +56,15 @@ invariants:
 success_criteria:
   - "Completeness determination matches the manual review result in 95% of cases."
   - "All deficiency codes accurately reflect the actual missing content."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps:
   - "ML-based photograph quality detection not yet scoped -- Data Science team to evaluate"

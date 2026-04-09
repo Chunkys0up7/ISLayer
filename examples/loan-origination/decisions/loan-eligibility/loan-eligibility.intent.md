@@ -40,6 +40,12 @@ generated_from: "CAP-LO-DEC-001"
 generated_date: "2026-04-09T00:00:00Z"
 generated_by: "MDA Demo"
 mda_layer: "PIM"
+execution_hints:
+  forbidden_actions:
+    - browser_automation
+    - screen_scraping
+    - ui_click
+    - rpa_style_macros
 ---
 
 # Intent: Loan Eligibility Decision

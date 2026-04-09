@@ -5,6 +5,8 @@ bpmn_task_id: "Task_OrderAppraisal"
 bpmn_task_name: "Order Appraisal"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
+goal: "Submit appraisal order to AMC with property details and assignment requirements"
+goal_type: "notification"
 
 version: "1.0.0"
 status: "draft"
@@ -34,6 +36,7 @@ max_retries: 3
 
 capsule_id: "CAP-PA-ORD-001"
 contract_id: "ICT-PA-ORD-001"
+contract_ref: "ICT-PA-ORD-001"
 predecessor_ids: []
 successor_ids:
   - "INT-PA-RCV-001"
@@ -54,6 +57,15 @@ invariants:
 success_criteria:
   - "Order transmitted and confirmation received from AMC within 60 seconds."
   - "All required fields in the MISMO XML order payload are populated."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps:
   - "Desktop appraisal eligibility logic not yet specified -- Product team to define"

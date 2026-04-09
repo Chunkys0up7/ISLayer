@@ -6,6 +6,9 @@ bpmn_task_name: "Emit Appraisal Complete Event"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
 
+goal: "Publish appraisal completion event to notify downstream systems that appraisal review is finalized"
+goal_type: "notification"
+
 version: "1.0.0"
 status: "draft"
 
@@ -34,6 +37,7 @@ max_retries: 5
 
 capsule_id: "CAP-PA-NTF-001"
 contract_id: "ICT-PA-NTF-001"
+contract_ref: "ICT-PA-NTF-001"
 predecessor_ids:
   - "INT-PA-ASV-001"
 successor_ids: []
@@ -51,6 +55,15 @@ invariants:
 success_criteria:
   - "Event published within 30 seconds of task initiation."
   - "Borrower delivery triggered within 60 seconds."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps: []
 ---

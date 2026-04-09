@@ -34,6 +34,9 @@ max_retries: 2
 
 capsule_id: "CAP-PA-ASV-001"
 contract_id: "ICT-PA-ASV-001"
+contract_ref: "ICT-PA-ASV-001"
+goal: "Calculate LTV ratio and determine collateral adequacy based on appraised value and loan parameters"
+goal_type: "data_production"
 predecessor_ids:
   - "INT-PA-VAL-001"
 successor_ids:
@@ -54,6 +57,15 @@ invariants:
 success_criteria:
   - "LTV calculation accuracy matches manual calculation in 100% of cases."
   - "All adjustment threshold violations are detected and flagged."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps:
   - "AVM integration for cross-validation not yet available -- Vendor evaluation in progress"

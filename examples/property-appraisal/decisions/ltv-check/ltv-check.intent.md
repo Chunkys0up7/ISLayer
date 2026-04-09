@@ -5,6 +5,8 @@ bpmn_task_id: "Gateway_LTV"
 bpmn_task_name: "Value Within LTV?"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
+goal: "Determine whether calculated LTV ratio is within program-specific thresholds"
+goal_type: "decision"
 
 version: "1.0.0"
 status: "draft"
@@ -34,6 +36,7 @@ max_retries: 0
 
 capsule_id: "CAP-PA-DEC-002"
 contract_id: "ICT-PA-DEC-002"
+contract_ref: "ICT-PA-DEC-002"
 predecessor_ids:
   - "INT-PA-ASV-001"
 successor_ids:
@@ -49,6 +52,15 @@ invariants:
 success_criteria:
   - "Routing decision made within 1 second."
   - "100% accuracy in mapping LTV determination to the correct path."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps: []
 ---

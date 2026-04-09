@@ -5,6 +5,8 @@ bpmn_task_id: "Task_ReceiveReport"
 bpmn_task_name: "Receive Appraisal Report"
 process_id: "Process_PropertyAppraisal"
 process_name: "Property Appraisal"
+goal: "Receive and ingest completed appraisal report from AMC into document management system"
+goal_type: "state_transition"
 
 version: "1.0.0"
 status: "draft"
@@ -34,6 +36,7 @@ max_retries: 5
 
 capsule_id: "CAP-PA-RCV-001"
 contract_id: "ICT-PA-RCV-001"
+contract_ref: "ICT-PA-RCV-001"
 predecessor_ids:
   - "INT-PA-ORD-001"
 successor_ids:
@@ -52,6 +55,15 @@ invariants:
 success_criteria:
   - "Report ingested and indexed within 30 seconds of receipt."
   - "All UAD XML header fields parsed with zero data loss."
+
+execution_hints:
+  preferred_agent: "property-appraisal-agent"
+  tool_access: []
+  forbidden_actions:
+    - "browser_automation"
+    - "screen_scraping"
+    - "ui_click"
+    - "rpa_style_macros"
 
 gaps: []
 ---
