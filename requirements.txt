@@ -1,0 +1,18 @@
+# MDA Intent Layer — Python Dependencies
+#
+# Install: pip install -r requirements.txt
+#
+# Core (required for all commands):
+pyyaml>=6.0
+jsonschema>=4.20
+rich>=13.0
+jinja2>=3.1
+
+# LLM Providers (install the one you use):
+anthropic>=0.40          # For Anthropic Claude
+openai>=1.50             # For OpenAI GPT
+requests>=2.31           # For local Ollama
+
+# Documentation site:
+mkdocs>=1.6
+mkdocs-material>=9.5

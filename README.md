@@ -1,89 +1,148 @@
 # MDA Intent Layer
 
-An MDA-aligned transformation pipeline that converts BPMN process models into agent-executable intent specifications. The intent layer bridges the gap between business process modeling and AI agentic execution by producing structured artifacts that give an agent everything it needs to perform a business task without human intervention.
+An MDA-aligned transformation pipeline that converts BPMN process models into agent-executable intent specifications. It bridges business process modeling and AI agentic execution by producing structured artifacts that give an agent everything it needs to perform a business task.
+
+## Quick Start
+
+```bash
+# Clone
+git clone https://github.com/Chunkys0up7/ISLayer.git
+cd ISLayer
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Explore the demo data
+cd examples/income-verification
+python ../../cli/mda.py status          # See triple status
+python ../../cli/mda.py parse bpmn/income-verification.bpmn   # Parse BPMN
+python ../../cli/mda.py corpus search "income"                 # Search corpus
+python ../../cli/mda.py validate        # Validate triples
+python ../../cli/mda.py docs serve      # Browse as a website
+```
+
+See [docs/getting-started.md](docs/getting-started.md) for a full walkthrough.
 
 ## What This Is
 
-The MDA Intent Layer takes BPMN 2.0 process diagrams --- the standard for documenting business processes --- and transforms them into a set of machine-readable artifacts that AI agents can consume directly. The transformation follows the OMG Model-Driven Architecture (MDA) framework, providing formal traceability from business process to executable specification.
+The MDA Intent Layer takes BPMN 2.0 process diagrams and transforms them into machine-readable artifacts that AI agents consume directly. The transformation follows the OMG Model-Driven Architecture (MDA) framework, providing formal traceability from business process to executable specification.
 
-See [METHODOLOGY.md](METHODOLOGY.md) for the full theoretical foundation.
-
-## The Three Artifacts
-
-Every BPMN task produces exactly one **triple** --- three artifacts that together form a self-contained work package for an agent:
+Every BPMN task produces exactly one **triple** --- three artifacts that together form a complete work package:
 
 | Artifact | MDA Layer | Purpose |
 |----------|-----------|---------|
-| **Knowledge Capsule** | CIM companion | Domain knowledge, business rules, edge cases, regulatory constraints |
-| **Intent Specification** | PIM | What outcome must be achieved, preconditions, postconditions, verification criteria |
-| **Integration Contract** | PSM | API endpoints, event schemas, authentication, error handling, retry policies |
+| **Knowledge Capsule** (`.cap.md`) | CIM companion | Domain knowledge, business rules, regulatory constraints --- the HOW |
+| **Intent Specification** (`.intent.md`) | PIM | Required outcome, preconditions, invariants, failure modes --- the WHAT |
+| **Integration Contract** (`.contract.md`) | PSM | API endpoints, event schemas, authentication, SLAs --- the WHERE |
 
-### Core Principle: One BPMN Task = One Triple
+These triples are fed by a **Knowledge Corpus** --- 46 source documents (procedures, policies, regulations, rules, data dictionaries, system guides) that the pipeline draws from when generating capsules.
 
-The mapping between BPMN tasks and triples is strict and 1:1. No merging of tasks into a single spec. No splitting of a task across multiple specs. This constraint ensures full traceability from process model to executable specification.
+See [METHODOLOGY.md](METHODOLOGY.md) for the full theoretical foundation.
 
-## Anti-UI Principle
+## CLI
 
-Intent specifications must never be satisfied through browser automation, screen scraping, UI clicks, or any form of graphical interface interaction. If the only path to fulfillment is through a UI, the integration contract is incomplete and must be flagged for remediation. Agents execute through APIs and events, not through simulated human interaction.
+The `mda` CLI provides 17 commands across 5 categories:
 
-## Directory Structure
+| Category | Commands |
+|----------|----------|
+| **Project** | `init`, `config` |
+| **BPMN Ingestion** | `parse`, `ingest`, `reingest` |
+| **Corpus** | `corpus index`, `corpus add`, `corpus search`, `corpus validate` |
+| **Triples** | `validate`, `status`, `gaps`, `graph` |
+| **LLM-Powered** | `enrich`, `generate`, `review` |
+| **Docs** | `docs generate`, `docs build`, `docs serve` |
+
+```bash
+python cli/mda.py <command> [options]
+```
+
+LLM integration is provider-agnostic (Anthropic Claude, OpenAI, or local Ollama). All LLM commands have a `--skip-llm` fallback that produces template stubs.
+
+See [docs/cli-reference.md](docs/cli-reference.md) for the complete reference.
+
+## Project Structure
 
 ```
-mda-intent-engine/
-├── METHODOLOGY.md          # MDA alignment rationale and theoretical foundation
-├── CHANGELOG.md            # Project changelog
-├── schemas/                # JSON Schemas for artifact validation
+ISLayer/
+├── README.md
+├── METHODOLOGY.md              # MDA alignment rationale
+├── CHANGELOG.md
+├── requirements.txt            # Python dependencies
+│
+├── cli/                        # Python CLI (the mda command)
+│   ├── mda.py                  # Entry point
+│   ├── commands/               # Command handlers (14 commands)
+│   ├── pipeline/               # 6-stage transformation pipeline
+│   ├── models/                 # Data models (BPMN, enriched, triple, corpus)
+│   ├── mda_io/                 # File I/O (frontmatter, BPMN XML, schema validation)
+│   ├── llm/                    # LLM providers (Anthropic, OpenAI, Ollama) + prompts
+│   └── output/                 # Console + JSON output formatting
+│
+├── schemas/                    # JSON Schema validation (5 schemas)
 │   ├── capsule.schema.json
 │   ├── intent.schema.json
 │   ├── contract.schema.json
+│   ├── corpus-document.schema.json
 │   └── triple-manifest.schema.json
-├── templates/              # Canonical templates for each artifact type
+│
+├── ontology/                   # Controlled vocabularies (5 files)
+│   ├── goal-types.yaml         # data_production, decision, notification, state_transition, orchestration
+│   ├── status-lifecycle.yaml   # draft, review, approved, current, deprecated, archived
+│   ├── bpmn-element-mapping.yaml
+│   ├── id-conventions.yaml
+│   └── corpus-taxonomy.yaml    # 8 corpus document types
+│
+├── corpus/                     # Knowledge corpus (46 source documents)
+│   ├── corpus.config.yaml      # Searchable index
+│   ├── procedures/             # Step-by-step work instructions
+│   ├── policies/               # Organizational policies
+│   ├── regulations/            # Regulatory reference summaries
+│   ├── rules/                  # Decision tables and business rules
+│   ├── data-dictionary/        # Data object definitions
+│   ├── systems/                # System/API documentation
+│   ├── training/               # Onboarding guides
+│   └── glossary/               # Domain terminology
+│
+├── templates/                  # Canonical file templates
 │   ├── capsule.template.cap.md
 │   ├── intent.template.intent.md
 │   ├── contract.template.contract.md
-│   └── process-repo-scaffold/
-├── ontology/               # Controlled vocabularies and element mappings
-│   ├── goal-types.yaml
-│   ├── status-lifecycle.yaml
-│   └── bpmn-element-mapping.yaml
-├── pipeline/               # Pipeline stage definitions
-├── validation/             # Validation tooling
-├── examples/               # Demo BPMN processes
-│   ├── loan-origination/
-│   ├── income-verification/
-│   └── property-appraisal/
-└── docs/                   # Detailed guides
-    ├── architecture.md
-    ├── governance-model.md
-    └── lifecycle-management.md
+│   └── mkdocs/                 # MkDocs site generation templates
+│
+├── pipeline/                   # Pipeline stage documentation (6 stages)
+│
+├── examples/                   # 3 demo processes with full triples
+│   ├── loan-origination/       # 10 triples, BPMN, graph, gaps
+│   ├── income-verification/    # 8 triples, BPMN, graph, gaps
+│   └── property-appraisal/     # 9 triples, BPMN, graph, gaps
+│
+└── docs/                       # User guides and architecture docs
 ```
 
-## How to Use
+## Core Principles
 
-1. **Create a process repository** using the scaffold in `templates/process-repo-scaffold/`. Each repository corresponds to one bounded context (one business process).
-
-2. **Ingest a BPMN diagram** by running it through the transformation pipeline. The pipeline parses the BPMN XML, maps elements to triples, generates draft artifacts using the canonical templates, and validates them against the JSON schemas.
-
-3. **Review the generated triples.** Draft triples will have gaps --- places where the pipeline could not determine business rules, API endpoints, or edge cases. Gaps are flagged honestly rather than filled with fabricated content. Human reviewers fill gaps and promote triples through the lifecycle (draft, review, approved, current).
-
-4. **Agents consume current triples.** Once a triple reaches `current` status, it is a complete, validated work package. An agent receives the capsule (domain knowledge), the intent spec (what to achieve), and the contract (how to connect), and executes the task.
+- **One BPMN Task = One Triple** --- strict 1:1 mapping for full traceability
+- **Anti-UI Principle** --- intents never use browser automation, screen scraping, or UI clicks
+- **Conservative Enrichment** --- flag gaps rather than hallucinate content
+- **Separation of Change Rates** --- capsules change quarterly, contracts change monthly, runtime changes weekly
+- **Artifacts for Agents** --- every triple is designed to be consumed by an AI agent
 
 ## Documentation
 
 ### User Guides
 
-- [docs/getting-started.md](docs/getting-started.md) --- Quick start: install, explore demos, create your first process
-- [docs/cli-reference.md](docs/cli-reference.md) --- Complete CLI command reference (all 17 commands)
-- [docs/process-owner-guide.md](docs/process-owner-guide.md) --- Day-to-day guide for process owners
-- [docs/corpus-authoring.md](docs/corpus-authoring.md) --- How to write and maintain corpus documents
-- [docs/triple-review.md](docs/triple-review.md) --- Review checklist for triple PRs
+- [Getting Started](docs/getting-started.md) --- Install, explore demos, create your first process (15 min)
+- [CLI Reference](docs/cli-reference.md) --- All 17 commands with arguments, options, and examples
+- [Process Owner Guide](docs/process-owner-guide.md) --- Day-to-day workflows for managing a process
+- [Corpus Authoring Guide](docs/corpus-authoring.md) --- How to write and maintain corpus documents
+- [Triple Review Guide](docs/triple-review.md) --- Review checklists by role
 
 ### Architecture and Governance
 
-- [METHODOLOGY.md](METHODOLOGY.md) --- Theoretical foundation, MDA alignment, core principles
-- [docs/architecture.md](docs/architecture.md) --- System architecture and design decisions
-- [docs/governance-model.md](docs/governance-model.md) --- Roles, PR workflows, CI/CD requirements
-- [docs/lifecycle-management.md](docs/lifecycle-management.md) --- Status lifecycle, versioning, change management
+- [Methodology](METHODOLOGY.md) --- MDA alignment, core principles, glossary
+- [Architecture](docs/architecture.md) --- System design, pipeline stages, knowledge corpus
+- [Governance Model](docs/governance-model.md) --- Roles, PR workflows, CI/CD
+- [Lifecycle Management](docs/lifecycle-management.md) --- Status lifecycle, versioning, re-ingestion
 
 ## License
 
