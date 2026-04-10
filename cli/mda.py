@@ -159,6 +159,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--report", type=Path, metavar="PATH", help="Write YAML report to file"
     )
 
+    # --- Submission ---
+    submit_parser = subparsers.add_parser("submit", help="Submit changes for review (branch, commit, push, PR)")
+    submit_parser.add_argument("--message", "-m", help="Commit message describing the changes")
+    submit_parser.add_argument("--reviewers", help="Comma-separated list of reviewers")
+    submit_parser.add_argument("--target", default="main", help="Target branch for PR (default: main)")
+
     # --- Reporting ---
     report_parser = subparsers.add_parser("report", help="Generate GAP analysis report with health scoring")
     report_parser.add_argument("--format", choices=["xml", "json", "yaml"], default="xml", help="Output format")
@@ -300,6 +306,10 @@ def main():
             from commands.report_cmd import run_report
 
             run_report(args, config)
+        elif args.command == "submit":
+            from commands.submit_cmd import run_submit
+
+            run_submit(args, config)
         else:
             parser.print_help()
             sys.exit(1)

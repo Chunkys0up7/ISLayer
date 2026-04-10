@@ -25,6 +25,22 @@ DEFAULTS = {
         "schemas": "../../schemas/",
         "ontology": "../../ontology/",
     },
+    "corpus": {
+        "source": "local",
+        "local_path": "../../corpus",
+        "s3": {
+            "bucket": "",
+            "prefix": "corpus/",
+            "region": "us-east-1",
+            "sync_to": ".corpus-cache/",
+        },
+    },
+    "bitbucket": {
+        "url": "",
+        "project": "",
+        "repo": "",
+        "default_reviewers": [],
+    },
     "defaults": {
         "status": "draft",
         "binding_status": "unbound",

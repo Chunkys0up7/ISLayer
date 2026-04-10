@@ -65,6 +65,9 @@ examples/*/mkdocs.yml
 site/
 mkdocs.yml
 
+# S3 corpus cache
+.corpus-cache/
+
 # Claude Code (keep skills, ignore local config)
 .claude/*
 !.claude/skills/
