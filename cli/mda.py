@@ -159,6 +159,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--report", type=Path, metavar="PATH", help="Write YAML report to file"
     )
 
+    # --- Reporting ---
+    report_parser = subparsers.add_parser("report", help="Generate GAP analysis report with health scoring")
+    report_parser.add_argument("--format", choices=["xml", "json", "yaml"], default="xml", help="Output format")
+    report_parser.add_argument("--output", type=Path, help="Write report to file")
+    report_parser.add_argument("--severity-threshold", choices=["critical", "high", "medium", "low"], default="low", help="Minimum severity to include")
+    report_parser.add_argument("--include-details", action="store_true", help="Include detailed dimension breakdowns")
+    report_parser.add_argument("--no-score", action="store_true", help="Skip scoring, just list gaps")
+
     # --- Documentation ---
     docs_parser = subparsers.add_parser("docs", help="Generate and serve process documentation")
     docs_sub = docs_parser.add_subparsers(dest="docs_command")
@@ -288,6 +296,10 @@ def main():
             from commands.review_cmd import run_review
 
             run_review(args, config)
+        elif args.command == "report":
+            from commands.report_cmd import run_report
+
+            run_report(args, config)
         else:
             parser.print_help()
             sys.exit(1)
