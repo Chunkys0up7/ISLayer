@@ -65,5 +65,6 @@ examples/*/mkdocs.yml
 site/
 mkdocs.yml
 
-# Claude Code
-.claude/
+# Claude Code (keep skills, ignore local config)
+.claude/*
+!.claude/skills/
