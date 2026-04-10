@@ -1,4 +1,9 @@
-"""Stage 3: Capsule Generator — Generate .cap.md files from enriched model."""
+"""Stage 3: Capsule Generator — Generate .cap.md files from enriched model.
+
+Uses a two-pass approach:
+  Pass 1: Assign capsule IDs to all eligible nodes (build the ID registry)
+  Pass 2: Generate capsule files with correct predecessor/successor references
+"""
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -17,6 +22,7 @@ yaml_io = _load_io("yaml_io")
 from models.enriched import EnrichedModel
 from models.bpmn import ParsedModel
 
+
 def run_capsule_generator(
     enriched: EnrichedModel,
     output_dir: Path,
@@ -25,9 +31,14 @@ def run_capsule_generator(
     llm_provider=None,
 ) -> list[Path]:
     """Generate capsule files for all eligible nodes.
+
+    Two-pass approach:
+      Pass 1: Build a registry mapping BPMN node ID → capsule/intent/contract IDs
+      Pass 2: Generate capsule files using the registry for predecessor/successor refs
+
     Returns list of created file paths.
+    Also attaches the id_registry to the enriched model for use by stages 4 and 5.
     """
-    created = []
     id_prefix = config.get("naming", {}).get("id_prefix", "XX")
     process_name = config.get("process", {}).get("name", "Unknown Process")
     process_id = config.get("process", {}).get("id", "Unknown")
@@ -41,16 +52,17 @@ def run_capsule_generator(
         for entry in mapping_data.get("mappings", []):
             mapping[entry.get("bpmn_element", "")] = entry
 
-    seq_counter = {}  # category -> next seq number
+    # ================================================================
+    # PASS 1: Assign IDs to all eligible nodes (build the ID registry)
+    # ================================================================
+    id_registry = {}  # BPMN node ID → {"capsule_id", "intent_id", "contract_id", "slug", "triple_type"}
+    seq_counter = {}  # category key → next sequence number
 
     for node in enriched.parsed_model.nodes:
         elem_mapping = mapping.get(node.element_type, {})
         if not elem_mapping.get("generates_capsule", True):
             continue
 
-        enrichment = enriched.get_enrichment(node.id)
-
-        # Generate ID
         category = _derive_category(node.name or node.id)
         seq_key = f"{id_prefix}-{category}"
         seq_counter[seq_key] = seq_counter.get(seq_key, 0) + 1
@@ -60,9 +72,56 @@ def run_capsule_generator(
         intent_id = f"INT-{id_prefix}-{category}-{seq}"
         contract_id = f"ICT-{id_prefix}-{category}-{seq}"
 
+        slug = (node.name or node.id).lower().replace(" ", "-").replace("_", "-")
+        slug = re.sub(r'[^a-z0-9-]', '', slug)
+
+        triple_type = elem_mapping.get("triple_type", "standard")
+
+        id_registry[node.id] = {
+            "capsule_id": capsule_id,
+            "intent_id": intent_id,
+            "contract_id": contract_id,
+            "slug": slug,
+            "triple_type": triple_type,
+            "generates_intent": elem_mapping.get("generates_intent", True),
+            "generates_contract": elem_mapping.get("generates_contract", True),
+        }
+
+    # Attach registry to enriched model for use by stages 4, 5, and graph builder
+    enriched.id_registry = id_registry
+
+    # ================================================================
+    # PASS 2: Generate capsule files with correct cross-references
+    # ================================================================
+    created = []
+
+    for node in enriched.parsed_model.nodes:
+        if node.id not in id_registry:
+            continue
+
+        reg = id_registry[node.id]
+        enrichment = enriched.get_enrichment(node.id)
+
+        # Build predecessor/successor IDs from the registry
+        predecessor_ids = []
+        for pred in enriched.parsed_model.get_predecessors(node.id):
+            if pred.id in id_registry:
+                predecessor_ids.append(id_registry[pred.id]["capsule_id"])
+
+        successor_ids = []
+        for succ in enriched.parsed_model.get_successors(node.id):
+            if succ.id in id_registry:
+                successor_ids.append(id_registry[succ.id]["capsule_id"])
+
+        # Build exception IDs (boundary events attached to this node)
+        exception_ids = []
+        for be_id in node.boundary_event_ids:
+            if be_id in id_registry:
+                exception_ids.append(id_registry[be_id]["capsule_id"])
+
         # Build frontmatter
         fm = {
-            "capsule_id": capsule_id,
+            "capsule_id": reg["capsule_id"],
             "bpmn_task_id": node.id,
             "bpmn_task_name": node.name or node.id,
             "bpmn_task_type": node.element_type,
@@ -82,12 +141,12 @@ def run_capsule_generator(
             "subdomain": "",
             "regulation_refs": [],
             "policy_refs": [],
-            "intent_id": intent_id,
-            "contract_id": contract_id,
+            "intent_id": reg["intent_id"],
+            "contract_id": reg["contract_id"],
             "parent_capsule_id": None,
-            "predecessor_ids": [f"CAP-{id_prefix}-{_derive_category(p.name or p.id)}-001" for p in enriched.parsed_model.get_predecessors(node.id)] if enriched else [],
-            "successor_ids": [f"CAP-{id_prefix}-{_derive_category(s.name or s.id)}-001" for s in enriched.parsed_model.get_successors(node.id)] if enriched else [],
-            "exception_ids": [],
+            "predecessor_ids": predecessor_ids,
+            "successor_ids": successor_ids,
+            "exception_ids": exception_ids,
             "gaps": [],
         }
 
@@ -108,28 +167,31 @@ def run_capsule_generator(
         else:
             body = _generate_template_body(node, enrichment)
 
-        # Write file
-        slug = (node.name or node.id).lower().replace(" ", "-").replace("_", "-")
-        slug = re.sub(r'[^a-z0-9-]', '', slug)
-
         # Determine output subdirectory
-        triple_type = elem_mapping.get("triple_type", "standard")
-        if triple_type == "decision":
-            subdir = output_dir.parent / "decisions" / slug
+        if reg["triple_type"] == "decision":
+            subdir = output_dir.parent / "decisions" / reg["slug"]
         else:
-            subdir = output_dir / slug
+            subdir = output_dir / reg["slug"]
         subdir.mkdir(parents=True, exist_ok=True)
 
-        file_path = subdir / f"{slug}.cap.md"
+        file_path = subdir / f"{reg['slug']}.cap.md"
         frontmatter_mod.write_frontmatter_file(file_path, fm, body)
         created.append(file_path)
 
     return created
 
 
+def get_id_registry(enriched: EnrichedModel) -> dict:
+    """Get the ID registry from an enriched model (set during capsule generation).
+
+    Returns dict mapping BPMN node ID → {capsule_id, intent_id, contract_id, slug, triple_type}.
+    Returns empty dict if capsule generation hasn't run yet.
+    """
+    return getattr(enriched, 'id_registry', {})
+
+
 def _derive_category(name: str) -> str:
     """Derive a 3-letter category code from a task name."""
-    # Common mappings
     mappings = {
         "application": "APP", "receive": "RCV", "verify": "VER", "credit": "CRC",
         "identity": "IDV", "income": "INC", "dti": "DTI", "debt": "DTI",
@@ -138,14 +200,16 @@ def _derive_category(name: str) -> str:
         "classify": "CLS", "calculate": "QAL", "emit": "NTF", "notify": "NTF",
         "request": "REQ", "assess": "ASV", "eligible": "DEC", "threshold": "DEC",
         "complete": "CMP", "timeout": "TMO", "reject": "REJ", "flag": "FLG",
+        "start": "STA", "end": "END", "w-2": "W2V", "self-employ": "SEI",
+        "variance": "VAR",
     }
     name_lower = name.lower()
     for keyword, code in mappings.items():
         if keyword in name_lower:
             return code
-    # Fallback: first 3 consonants
     consonants = [c.upper() for c in name_lower if c.isalpha() and c not in "aeiou"]
     return "".join(consonants[:3]) if len(consonants) >= 3 else name[:3].upper()
+
 
 def _generate_template_body(node, enrichment) -> str:
     """Generate a template body without LLM (--skip-llm mode)."""
@@ -161,11 +225,11 @@ def _generate_template_body(node, enrichment) -> str:
     body += "## Notes\n\n<!-- Generated by mda-cli without LLM. Fill in manually or re-run with LLM. -->\n"
     return body
 
+
 def _generate_body_with_llm(node, enrichment, corpus_dir, llm_provider) -> str:
     """Generate body using LLM with corpus content."""
     from llm.prompts.capsule import CAPSULE_SYSTEM, build_capsule_body_prompt
 
-    # Load matched corpus document content
     corpus_content = []
     if enrichment and enrichment.procedure.found:
         for match in enrichment.procedure.corpus_refs[:3]:
@@ -179,7 +243,6 @@ def _generate_body_with_llm(node, enrichment, corpus_dir, llm_provider) -> str:
                     "body_text": body[:2000],
                 })
 
-    # Also get regulation/policy corpus docs
     if enrichment and enrichment.regulatory.applicable:
         for match in enrichment.regulatory.corpus_refs[:2]:
             doc_path = _find_corpus_doc(corpus_dir, match.corpus_id)
@@ -204,16 +267,15 @@ def _generate_body_with_llm(node, enrichment, corpus_dir, llm_provider) -> str:
     response = llm_provider.complete(prompt, system_prompt=CAPSULE_SYSTEM, max_tokens=4096)
     return response.content
 
+
 def _find_corpus_doc(corpus_dir: Path, corpus_id: str) -> Optional[Path]:
     """Find a corpus document file by its ID."""
-    # Search the index for the path
     index_path = corpus_dir / "corpus.config.yaml"
     if index_path.exists():
         index = yaml_io.read_yaml(index_path)
         for doc in index.get("documents", []):
             if doc.get("corpus_id") == corpus_id:
                 return corpus_dir / doc.get("path", "")
-    # Fallback: scan files
     for f in corpus_dir.rglob("*.corpus.md"):
         fm, _ = frontmatter_mod.read_frontmatter_file(f)
         if fm.get("corpus_id") == corpus_id:

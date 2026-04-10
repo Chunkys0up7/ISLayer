@@ -11,6 +11,7 @@ from .stage3_capsule_gen import run_capsule_generator
 from .stage4_intent_gen import run_intent_generator
 from .stage5_contract_gen import run_contract_generator
 from .stage6_validator import run_validator
+from .graph_builder import build_graph_from_registry
 
 def run_ingest(
     bpmn_path: Path,
@@ -83,6 +84,17 @@ def run_ingest(
         )
         results["stages"][5] = {"contracts_created": len(contract_files)}
         results["files_created"].extend(contract_files)
+
+    # Build process graph (after capsule generation sets up the ID registry)
+    if 3 in stages and enriched is not None:
+        graph_dir_path = config.get("paths.graph") or config.get("output.graph_dir") or "graph"
+        graph_dir = config.project_root / graph_dir_path
+        graph = build_graph_from_registry(enriched, graph_dir, config_dict)
+        results["graph"] = {
+            "nodes": graph.get("node_count", 0),
+            "edges": graph.get("edge_count", 0),
+            "connected": graph.get("connected", False),
+        }
 
     # Stage 6: Validate
     if 6 in stages and not no_validate:
