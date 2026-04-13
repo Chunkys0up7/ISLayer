@@ -16,6 +16,9 @@ requests>=2.31           # For local Ollama
 # S3 corpus loading (optional):
 boto3>=1.34
 
+# Excel import for job aids (optional):
+openpyxl>=3.1
+
 # Documentation site:
 mkdocs>=1.6
 mkdocs-material>=9.5

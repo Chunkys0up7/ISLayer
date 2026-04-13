@@ -30,7 +30,7 @@ class TestLoadsAllSchemas:
 
     def test_all_schemas_loaded(self, validator):
         names = set(validator._schemas.keys())
-        expected = {"capsule", "intent", "contract", "corpus-document", "triple-manifest"}
+        expected = {"capsule", "intent", "contract", "corpus-document", "triple-manifest", "jobaid"}
         assert expected == names
 
 

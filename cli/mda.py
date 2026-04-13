@@ -173,6 +173,26 @@ def build_parser() -> argparse.ArgumentParser:
     report_parser.add_argument("--include-details", action="store_true", help="Include detailed dimension breakdowns")
     report_parser.add_argument("--no-score", action="store_true", help="Skip scoring, just list gaps")
 
+    # --- Job Aids ---
+    jobaid_parser = subparsers.add_parser("jobaid", help="Import, validate, query, and manage job aids")
+    jobaid_sub = jobaid_parser.add_subparsers(dest="jobaid_command")
+
+    jobaid_import = jobaid_sub.add_parser("import", help="Import job aid from Excel")
+    jobaid_import.add_argument("file", type=Path, help="Path to Excel file")
+    jobaid_import.add_argument("--capsule-id", required=True, help="Capsule ID to link to")
+    jobaid_import.add_argument("--title", help="Job aid title")
+    jobaid_import.add_argument("--dimensions", help="Comma-separated dimension column names")
+    jobaid_import.add_argument("--output", type=Path, help="Output .jobaid.yaml path")
+
+    jobaid_validate = jobaid_sub.add_parser("validate", help="Validate job aid files")
+    jobaid_validate.add_argument("path", nargs="?", type=Path, help="Path to specific .jobaid.yaml")
+
+    jobaid_query = jobaid_sub.add_parser("query", help="Query job aid with conditions")
+    jobaid_query.add_argument("jobaid_file", type=Path, help="Path to .jobaid.yaml")
+    jobaid_query.add_argument("--conditions", "-c", help='Conditions: "key1=val1,key2=val2"')
+
+    jobaid_sub.add_parser("list", help="List all job aids in the process")
+
     # --- Documentation ---
     docs_parser = subparsers.add_parser("docs", help="Generate and serve process documentation")
     docs_sub = docs_parser.add_subparsers(dest="docs_command")
@@ -310,6 +330,10 @@ def main():
             from commands.submit_cmd import run_submit
 
             run_submit(args, config)
+        elif args.command == "jobaid":
+            from commands.jobaid_cmd import run_jobaid
+
+            run_jobaid(args, config)
         else:
             parser.print_help()
             sys.exit(1)

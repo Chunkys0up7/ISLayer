@@ -1,0 +1,635 @@
+jobaid_id: JA-IV-VW2-001
+title: W-2 Income Verification Decision Table
+capsule_id: CAP-IV-VW2-001
+version: "1.0"
+status: current
+description: >
+  Condition/action lookup table for W-2 income verification. Determines
+  required documentation, calculation method, thresholds, and regulatory
+  references based on loan program, income type, and employment duration.
+
+dimensions:
+  - name: loan_program
+    values: [FHA, Conventional, VA, USDA]
+    description: The loan program under which the application is being processed
+  - name: income_type
+    values: [base_salary, overtime, bonus, commission, tips]
+    description: The category of income being verified from the W-2
+  - name: employment_duration
+    values: [less_than_2_years, 2_years_or_more]
+    description: Length of time the borrower has been employed at the current employer
+
+rules:
+  # ============================================================
+  # FHA - base_salary
+  # ============================================================
+  - id: R-001
+    conditions:
+      loan_program: FHA
+      income_type: base_salary
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: FHA 4000.1 II.A.4.c.ii
+
+  - id: R-002
+    conditions:
+      loan_program: FHA
+      income_type: base_salary
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+        - Prior employer verification or school transcripts if gap exists
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: FHA 4000.1 II.A.4.c.iii
+
+  # ============================================================
+  # FHA - overtime
+  # ============================================================
+  - id: R-003
+    conditions:
+      loan_program: FHA
+      income_type: overtime
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+        - Written VOE confirming overtime likely to continue
+      calculation_method: 2_year_average
+      threshold: null
+      regulatory_ref: FHA 4000.1 II.A.4.c.viii
+
+  - id: R-004
+    conditions:
+      loan_program: FHA
+      income_type: overtime
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Written VOE confirming overtime likely to continue
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12 months minimum history required"
+      regulatory_ref: FHA 4000.1 II.A.4.c.viii
+
+  # ============================================================
+  # FHA - bonus
+  # ============================================================
+  - id: R-005
+    conditions:
+      loan_program: FHA
+      income_type: bonus
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+        - Employer written confirmation bonus likely to continue
+      calculation_method: 2_year_average
+      threshold: null
+      regulatory_ref: FHA 4000.1 II.A.4.c.viii
+
+  - id: R-006
+    conditions:
+      loan_program: FHA
+      income_type: bonus
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Employer written confirmation bonus likely to continue
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12 months minimum history required"
+      regulatory_ref: FHA 4000.1 II.A.4.c.viii
+
+  # ============================================================
+  # FHA - commission
+  # ============================================================
+  - id: R-007
+    conditions:
+      loan_program: FHA
+      income_type: commission
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - 2 years signed federal tax returns (1040)
+        - Most recent paystub covering 30-day period
+      calculation_method: 2_year_average
+      threshold: "If commission > 25% of total income, 2-year history mandatory"
+      regulatory_ref: FHA 4000.1 II.A.4.c.ix
+
+  - id: R-008
+    conditions:
+      loan_program: FHA
+      income_type: commission
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Signed federal tax returns (1040) for available years
+        - Most recent paystub covering 30-day period
+      calculation_method: not_eligible_unless_same_field
+      threshold: "Must demonstrate prior employment in same field; 2-year history preferred"
+      regulatory_ref: FHA 4000.1 II.A.4.c.ix
+
+  # ============================================================
+  # FHA - tips
+  # ============================================================
+  - id: R-009
+    conditions:
+      loan_program: FHA
+      income_type: tips
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip allocation records
+      calculation_method: 2_year_average
+      threshold: null
+      regulatory_ref: FHA 4000.1 II.A.4.c.viii
+
+  - id: R-010
+    conditions:
+      loan_program: FHA
+      income_type: tips
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip allocation records
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12 months minimum history required"
+      regulatory_ref: FHA 4000.1 II.A.4.c.viii
+
+  # ============================================================
+  # Conventional - base_salary
+  # ============================================================
+  - id: R-011
+    conditions:
+      loan_program: Conventional
+      income_type: base_salary
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: FNMA B3-3.1-01
+
+  - id: R-012
+    conditions:
+      loan_program: Conventional
+      income_type: base_salary
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+        - Employment offer letter or contract if recently started
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: FNMA B3-3.1-03
+
+  # ============================================================
+  # Conventional - overtime
+  # ============================================================
+  - id: R-013
+    conditions:
+      loan_program: Conventional
+      income_type: overtime
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+      calculation_method: 2_year_average
+      threshold: "Declining trend requires use of lower amount"
+      regulatory_ref: FNMA B3-3.1-01
+
+  - id: R-014
+    conditions:
+      loan_program: Conventional
+      income_type: overtime
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Written VOE confirming overtime likely to continue
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12-24 months history required; declining trend disqualifies"
+      regulatory_ref: FNMA B3-3.1-01
+
+  # ============================================================
+  # Conventional - bonus
+  # ============================================================
+  - id: R-015
+    conditions:
+      loan_program: Conventional
+      income_type: bonus
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+      calculation_method: 2_year_average
+      threshold: "Declining trend requires use of lower amount"
+      regulatory_ref: FNMA B3-3.1-01
+
+  - id: R-016
+    conditions:
+      loan_program: Conventional
+      income_type: bonus
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Employer written confirmation bonus structure
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12-24 months history required; declining trend disqualifies"
+      regulatory_ref: FNMA B3-3.1-01
+
+  # ============================================================
+  # Conventional - commission
+  # ============================================================
+  - id: R-017
+    conditions:
+      loan_program: Conventional
+      income_type: commission
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - 2 years signed federal tax returns (1040)
+        - Most recent paystub covering 30-day period
+      calculation_method: 2_year_average
+      threshold: "If commission > 25% of total income, tax returns required"
+      regulatory_ref: FNMA B3-3.1-05
+
+  - id: R-018
+    conditions:
+      loan_program: Conventional
+      income_type: commission
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Signed federal tax returns (1040) for available years
+        - Most recent paystub covering 30-day period
+      calculation_method: not_eligible_unless_same_field
+      threshold: "Must demonstrate prior employment in same line of work"
+      regulatory_ref: FNMA B3-3.1-05
+
+  # ============================================================
+  # Conventional - tips
+  # ============================================================
+  - id: R-019
+    conditions:
+      loan_program: Conventional
+      income_type: tips
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip records
+      calculation_method: 2_year_average
+      threshold: "Declining trend requires use of lower amount"
+      regulatory_ref: FNMA B3-3.1-01
+
+  - id: R-020
+    conditions:
+      loan_program: Conventional
+      income_type: tips
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip records
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12-24 months history required; must show consistency"
+      regulatory_ref: FNMA B3-3.1-01
+
+  # ============================================================
+  # VA - base_salary
+  # ============================================================
+  - id: R-021
+    conditions:
+      loan_program: VA
+      income_type: base_salary
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4
+
+  - id: R-022
+    conditions:
+      loan_program: VA
+      income_type: base_salary
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+        - Explanation of employment history if gaps > 30 days
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4
+
+  # ============================================================
+  # VA - overtime
+  # ============================================================
+  - id: R-023
+    conditions:
+      loan_program: VA
+      income_type: overtime
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+        - Employer verification overtime will continue
+      calculation_method: 2_year_average
+      threshold: "Probability of continuance must be established"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. c
+
+  - id: R-024
+    conditions:
+      loan_program: VA
+      income_type: overtime
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Employer verification overtime will continue
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "Must establish probability of continuance; 12 months minimum"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. c
+
+  # ============================================================
+  # VA - bonus
+  # ============================================================
+  - id: R-025
+    conditions:
+      loan_program: VA
+      income_type: bonus
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+        - Employer confirmation of bonus structure
+      calculation_method: 2_year_average
+      threshold: "Probability of continuance must be verified"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. c
+
+  - id: R-026
+    conditions:
+      loan_program: VA
+      income_type: bonus
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Employer confirmation of bonus structure
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "Must establish probability of continuance; 12 months minimum"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. c
+
+  # ============================================================
+  # VA - commission
+  # ============================================================
+  - id: R-027
+    conditions:
+      loan_program: VA
+      income_type: commission
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - 2 years signed federal tax returns (1040)
+        - Most recent paystub covering 30-day period
+      calculation_method: 2_year_average
+      threshold: "Must show stable or increasing trend"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. d
+
+  - id: R-028
+    conditions:
+      loan_program: VA
+      income_type: commission
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Signed federal tax returns (1040) for available years
+        - Most recent paystub covering 30-day period
+      calculation_method: not_eligible_unless_same_field
+      threshold: "Must demonstrate prior experience in commission-based role"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. d
+
+  # ============================================================
+  # VA - tips
+  # ============================================================
+  - id: R-029
+    conditions:
+      loan_program: VA
+      income_type: tips
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip allocation records
+      calculation_method: 2_year_average
+      threshold: "Probability of continuance must be established"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. c
+
+  - id: R-030
+    conditions:
+      loan_program: VA
+      income_type: tips
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip allocation records
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "Must establish probability of continuance; 12 months minimum"
+      regulatory_ref: VA Pamphlet 26-7 Ch. 4 Sec. c
+
+  # ============================================================
+  # USDA - base_salary
+  # ============================================================
+  - id: R-031
+    conditions:
+      loan_program: USDA
+      income_type: base_salary
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  - id: R-032
+    conditions:
+      loan_program: USDA
+      income_type: base_salary
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - Most recent W-2
+        - Most recent paystub covering 30-day period
+        - Explanation of employment history if gaps exist
+      calculation_method: current_annualized
+      threshold: null
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  # ============================================================
+  # USDA - overtime
+  # ============================================================
+  - id: R-033
+    conditions:
+      loan_program: USDA
+      income_type: overtime
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+        - Employer verification overtime will continue
+      calculation_method: 2_year_average
+      threshold: null
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  - id: R-034
+    conditions:
+      loan_program: USDA
+      income_type: overtime
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Employer verification overtime will continue
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12 months minimum history; must establish continuance"
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  # ============================================================
+  # USDA - bonus
+  # ============================================================
+  - id: R-035
+    conditions:
+      loan_program: USDA
+      income_type: bonus
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - Most recent paystub covering 30-day period
+        - Employer written confirmation of bonus structure
+      calculation_method: 2_year_average
+      threshold: null
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  - id: R-036
+    conditions:
+      loan_program: USDA
+      income_type: bonus
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Most recent paystub covering 30-day period
+        - Employer written confirmation of bonus structure
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12 months minimum history; must establish continuance"
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  # ============================================================
+  # USDA - commission
+  # ============================================================
+  - id: R-037
+    conditions:
+      loan_program: USDA
+      income_type: commission
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s
+        - 2 years signed federal tax returns (1040)
+        - Most recent paystub covering 30-day period
+      calculation_method: 2_year_average
+      threshold: "If commission > 25% of total income, must use 2-year average"
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  - id: R-038
+    conditions:
+      loan_program: USDA
+      income_type: commission
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s
+        - Signed federal tax returns (1040) for available years
+        - Most recent paystub covering 30-day period
+      calculation_method: not_eligible_unless_same_field
+      threshold: "Must demonstrate prior employment in same commission-based field"
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  # ============================================================
+  # USDA - tips
+  # ============================================================
+  - id: R-039
+    conditions:
+      loan_program: USDA
+      income_type: tips
+      employment_duration: 2_years_or_more
+    action:
+      documentation_required:
+        - 2 years W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip allocation records
+      calculation_method: 2_year_average
+      threshold: null
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
+
+  - id: R-040
+    conditions:
+      loan_program: USDA
+      income_type: tips
+      employment_duration: less_than_2_years
+    action:
+      documentation_required:
+        - All available W-2s showing tip income
+        - Most recent paystub covering 30-day period
+        - IRS Form 4137 or employer tip allocation records
+      calculation_method: ytd_annualized_if_trending_upward
+      threshold: "12 months minimum history; must establish continuance"
+      regulatory_ref: USDA HB-1-3555 Ch. 9.3
