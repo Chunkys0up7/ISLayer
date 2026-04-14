@@ -246,6 +246,7 @@ class NodeEnrichment:
     integration: IntegrationEnrichment = field(
         default_factory=lambda: IntegrationEnrichment(has_binding=False)
     )
+    jobaid_refs: list[dict] = field(default_factory=list)  # Discovered job aids
 
     def to_dict(self) -> dict:
         result: dict = {
@@ -260,6 +261,7 @@ class NodeEnrichment:
             "data_schemas": [ds.to_dict() for ds in self.data_schemas],
             "regulatory": self.regulatory.to_dict(),
             "integration": self.integration.to_dict(),
+            "jobaid_refs": list(self.jobaid_refs),
         }
         return result
 
@@ -285,6 +287,7 @@ class NodeEnrichment:
             integration=IntegrationEnrichment.from_dict(
                 data.get("integration", {"has_binding": False})
             ),
+            jobaid_refs=data.get("jobaid_refs", []),
         )
 
 

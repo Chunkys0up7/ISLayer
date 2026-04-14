@@ -170,11 +170,41 @@ def run_intent_generator(
         if enrichment and enrichment.regulatory.applicable:
             fm["regulatory_refs"] = [m.corpus_id for m in enrichment.regulatory.corpus_refs[:3]]
 
+        # Add job aid references and dimensions as additional inputs
+        if enrichment and hasattr(enrichment, 'jobaid_refs') and enrichment.jobaid_refs:
+            fm["jobaid_refs"] = []
+            for ja in enrichment.jobaid_refs:
+                fm["jobaid_refs"].append({
+                    "jobaid_id": ja.get("jobaid_id", ""),
+                    "title": ja.get("title", ""),
+                    "precedence": ja.get("precedence", "first_match"),
+                })
+                # Add job aid dimensions as inputs
+                for dim in ja.get("dimensions", []):
+                    dim_name = dim if isinstance(dim, str) else dim.get("name", "")
+                    if dim_name and not any(i.get("name") == dim_name for i in fm["inputs"]):
+                        fm["inputs"].append({
+                            "name": dim_name,
+                            "source": f"jobaid:{ja.get('jobaid_id', '')}",
+                            "schema_ref": None,
+                            "required": True,
+                        })
+                # Add job aid action fields as output parameters
+                for af in ja.get("action_fields", []):
+                    af_name = af if isinstance(af, str) else af.get("name", "")
+                    if af_name and not any(o.get("name") == af_name for o in fm["outputs"]):
+                        fm["outputs"].append({
+                            "name": af_name,
+                            "type": "jobaid_action",
+                            "sink": "task_parameters",
+                            "invariants": [f"{af_name} resolved from job aid {ja.get('jobaid_id', '')}"],
+                        })
+
         # Add gaps
         node_gaps = [g for g in enriched.gaps if g.node_id == node.id]
         fm["gaps"] = [{"type": g.gap_type.value, "description": g.description, "severity": g.severity.value} for g in node_gaps]
 
-        # Generate body
+        # Generate body — pass capsule content for grounding
         if llm_provider and capsule_content:
             body = _generate_body_with_llm(node, fm, capsule_content, llm_provider)
         else:
@@ -306,7 +336,7 @@ def _generate_template_body(node, frontmatter: dict) -> str:
 
 
 def _generate_body_with_llm(node, frontmatter, capsule_content, llm_provider) -> str:
-    """Generate body using LLM with capsule content."""
+    """Generate body using LLM with capsule content for grounding."""
     from llm.prompts.intent import INTENT_SYSTEM, build_intent_body_prompt
 
     node_context = {
@@ -315,6 +345,7 @@ def _generate_body_with_llm(node, frontmatter, capsule_content, llm_provider) ->
         "default_goal_type": frontmatter.get("goal_type", "data_production"),
     }
 
-    prompt = build_intent_body_prompt(node_context, frontmatter)
-    response = llm_provider.complete(prompt, system_prompt=INTENT_SYSTEM, max_tokens=4096)
+    # Pass capsule content through so the LLM can extract preconditions/invariants from it
+    prompt = build_intent_body_prompt(node_context, frontmatter, capsule_content)
+    response = llm_provider.complete(prompt, system_prompt=INTENT_SYSTEM, max_tokens=4096, temperature=0.15)
     return response.content
