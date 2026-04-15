@@ -173,6 +173,13 @@ def build_parser() -> argparse.ArgumentParser:
     report_parser.add_argument("--include-details", action="store_true", help="Include detailed dimension breakdowns")
     report_parser.add_argument("--no-score", action="store_true", help="Skip scoring, just list gaps")
 
+    # --- Journey Traceability ---
+    journey_parser = subparsers.add_parser("journey", help="Process journey traceability: steps, data lineage, critical path")
+    journey_parser.add_argument("--step", help="Show detail for a specific step (capsule ID or name substring)")
+    journey_parser.add_argument("--data", help="Show data lineage for a specific data object")
+    journey_parser.add_argument("--format", choices=["json", "yaml", "mermaid"], help="Output in structured format")
+    journey_parser.add_argument("--critical-path", action="store_true", help="Show only the critical path")
+
     # --- Job Aids ---
     jobaid_parser = subparsers.add_parser("jobaid", help="Import, validate, query, and manage job aids")
     jobaid_sub = jobaid_parser.add_subparsers(dest="jobaid_command")
@@ -330,6 +337,10 @@ def main():
             from commands.submit_cmd import run_submit
 
             run_submit(args, config)
+        elif args.command == "journey":
+            from commands.journey_cmd import run_journey
+
+            run_journey(args, config)
         elif args.command == "jobaid":
             from commands.jobaid_cmd import run_jobaid
 

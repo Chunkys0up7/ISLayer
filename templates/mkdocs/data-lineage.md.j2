@@ -1,0 +1,23 @@
+# Data Lineage: {{ process_name }}
+
+## Data Objects
+
+| Data Object | Source | Consumers |
+|-------------|--------|-----------|
+{% for dl in data_lineage -%}
+| **{{ dl.data_name }}** | {{ dl.source_name }} | {{ dl.consumers|map(attribute='name')|join(', ') }} |
+{% endfor %}
+
+## Data Flow Details
+
+{% for dl in data_lineage %}
+### {{ dl.data_name }}
+
+- **Source**: {{ dl.source_name }}{% if dl.source != "external" %} ([{{ dl.source }}](../tasks/)){% endif %}
+
+- **Consumed by**:
+{% for c in dl.consumers %}
+  - {{ c.name }} (`{{ c.capsule_id }}`)
+{% endfor %}
+
+{% endfor %}

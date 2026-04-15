@@ -133,6 +133,39 @@ def generate_docs(project_root: Path, config, engine_root: Optional[Path] = None
         "graph_yaml": graph_yaml_content,
     })
 
+    # Generate docs/journey/
+    has_journey = False
+    try:
+        import importlib.util as _ilu
+        _jb_spec = _ilu.spec_from_file_location("journey_builder",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "journey_builder.py"))
+        _jb_mod = _ilu.module_from_spec(_jb_spec)
+        _jb_spec.loader.exec_module(_jb_mod)
+
+        journey = _jb_mod.build_journey(project_root, config)
+        if journey and journey.steps:
+            has_journey = True
+            journey_dir = docs_dir / "journey"
+            journey_dir.mkdir()
+
+            critical_path_ids = set(journey.critical_path)
+
+            _render_template(env, "journey-index.md.j2", journey_dir / "index.md", {
+                "process_name": process_name,
+                "steps": [s.to_dict() for s in journey.steps],
+                "branch_points": [bp.to_dict() for bp in journey.branch_points],
+                "critical_path_ids": critical_path_ids,
+                "health_summary": journey.health_summary,
+                "mermaid_content": mermaid_content,
+            })
+
+            _render_template(env, "data-lineage.md.j2", journey_dir / "data-lineage.md", {
+                "process_name": process_name,
+                "data_lineage": [dl.to_dict() for dl in journey.data_lineage],
+            })
+    except Exception:
+        has_journey = False
+
     # Generate docs/tasks/ and docs/decisions/ — copy triple files with wrapper
     for t in tasks:
         _generate_triple_pages(env, t, docs_dir / "tasks" / t["slug"], "tasks", all_triples)
@@ -253,6 +286,7 @@ def generate_docs(project_root: Path, config, engine_root: Optional[Path] = None
         "site_name": f"{process_name} — MDA Intent Layer",
         "nav_tasks": nav_tasks,
         "nav_decisions": nav_decisions,
+        "has_journey": has_journey,
         "has_corpus": bool(corpus_sections),
         "corpus_sections": corpus_sections,
     })

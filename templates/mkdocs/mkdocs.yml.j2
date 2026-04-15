@@ -42,6 +42,11 @@ nav:
   - Process Flow:
     - BPMN Diagram: flow/diagram.md
     - Process Graph: flow/graph.md
+{%- if has_journey %}
+  - Journey:
+    - Journey Map: journey/index.md
+    - Data Lineage: journey/data-lineage.md
+{%- endif %}
   - Tasks:
 {%- for task in nav_tasks %}
     - "{{ task.name }}":

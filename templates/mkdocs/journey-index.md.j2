@@ -1,0 +1,40 @@
+# Journey Map: {{ process_name }}
+
+## Health Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Steps | {{ steps|length }} |
+| Average Health | {{ health_summary.avg_score|default(0)|round(1) }} |
+| Grade | {{ health_summary.grade|default("N/A") }} |
+| Steps with Gaps | {{ health_summary.steps_with_gaps|default(0) }} |
+| Total Gaps | {{ health_summary.total_gaps|default(0) }} |
+
+## Process Flow
+
+{{ mermaid_content }}
+
+## Step-by-Step Journey
+
+| # | Step | Type | Owner | Inputs | Outputs | Systems | Binding | Health | Gaps |
+|---|------|------|-------|--------|---------|---------|---------|--------|------|
+{% for step in steps -%}
+| {{ step.step_number }} | {% if step.capsule_id in critical_path_ids %}**{% endif %}[{{ step.name }}](../{{ step.section }}/{{ step.slug }}/capsule.md){% if step.capsule_id in critical_path_ids %}**{% endif %} | {{ step.task_type }} | {{ step.owner|default("-") }} | {{ step.required_inputs|length }} | {{ step.outputs|length }} | {{ (step.sources + step.sinks)|length }} | {{ step.binding_status }} | {{ step.health_score|round(0)|int }} | {{ step.gaps|length }} |
+{% endfor %}
+
+**Bold** steps indicate the critical path.
+
+{% if branch_points %}
+## Decision Points
+
+{% for bp in branch_points %}
+### {{ bp.gateway_name }}
+
+| Condition | Target |
+|-----------|--------|
+{% for branch in bp.branches -%}
+| {{ branch.condition|default("default") }} | {{ branch.target_name }} |
+{% endfor %}
+
+{% endfor %}
+{% endif %}
