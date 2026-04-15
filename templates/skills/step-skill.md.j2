@@ -1,0 +1,148 @@
+---
+name: {{ slug }}
+description: "Step {{ step_number }}/{{ total_steps }} in {{ process_name }}: {{ step.name }}. {{ goal | default('Execute this task with the procedure, inputs, and business rules below.') }}"
+allowed-tools: Bash(python *) Read
+user-invocable: true
+---
+
+# Step {{ step_number }}: {{ step.name }}
+
+**Type**: {{ step.task_type }} | **Owner**: {{ step.owner | default("Unassigned") }} | **Status**: {{ capsule_fm.status | default("draft") }}
+
+---
+
+## Where You Are in the Process
+
+**Process**: {{ process_name }} (Step {{ step_number }} of {{ total_steps }})
+
+{% if predecessor_names %}
+**Previous**: {{ predecessor_names | join(", ") }}
+{% else %}
+**Previous**: *(Start of process)*
+{% endif %}
+
+{% if successor_names %}
+**Next**: {{ successor_names | join(", ") }}
+{% else %}
+**Next**: *(End of process)*
+{% endif %}
+
+---
+
+{% if preconditions %}
+## Preconditions
+
+Before starting this step, these must be true:
+
+{% for pc in preconditions %}
+- {{ pc }}
+{% endfor %}
+{% endif %}
+
+{% if inputs %}
+## Required Inputs
+
+| Input | Source | Required |
+|-------|--------|----------|
+{% for inp in inputs %}
+| {{ inp.name }} | {{ inp.source }} | {{ "Yes" if inp.required else "No" }} |
+{% endfor %}
+{% endif %}
+
+## Procedure
+
+{{ procedure_content }}
+
+{% if business_rules %}
+## Business Rules
+
+{{ business_rules }}
+{% endif %}
+
+{% if jobaid %}
+## Job Aid: {{ jobaid.title }}
+
+This step has a **decision table** with **{{ jobaid.rules | length }} rules** across {{ jobaid.dimensions | length }} condition dimensions:
+
+{% for dim in jobaid.dimensions %}
+- **{{ dim["name"] }}**: {{ dim.get("values", []) | join(", ") }}
+{% endfor %}
+
+To look up conditions for a specific case:
+
+```
+python cli/mda.py jobaid query {{ jobaid_path }} -c "{{ jobaid.dimensions[0]["name"] }}=VALUE"
+```
+{% endif %}
+
+{% if outputs %}
+## Expected Outputs
+
+| Output | Type | Destination |
+|--------|------|-------------|
+{% for out in outputs %}
+| {{ out.name }} | {{ out.type }} | {{ out.sink }} |
+{% endfor %}
+
+{% if output_invariants %}
+### Output Invariants
+
+{% for inv in output_invariants %}
+- {{ inv }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if sources %}
+## Systems Called
+
+| System | Protocol | Endpoint | SLA |
+|--------|----------|----------|-----|
+{% for src in sources %}
+| {{ src.name }} | {{ src.protocol }} | {{ src.endpoint }} | {{ src.sla_ms | default("-") }}ms |
+{% endfor %}
+{% endif %}
+
+{% if failure_modes %}
+## Failure Modes
+
+| Mode | Detection | Action |
+|------|-----------|--------|
+{% for fm in failure_modes %}
+| {{ fm.mode }} | {{ fm.detection }} | {{ fm.action }} |
+{% endfor %}
+{% endif %}
+
+{% if regulation_refs or policy_refs %}
+## Regulatory Context
+
+{% for ref in regulation_refs %}
+- {{ ref }}
+{% endfor %}
+{% for ref in policy_refs %}
+- Policy: {{ ref }}
+{% endfor %}
+{% endif %}
+
+{% if gaps %}
+## Known Gaps
+
+{% for gap in gaps %}
+- **{{ gap.severity | upper }}**: {{ gap.description }} *({{ gap.type }})*
+{% endfor %}
+{% endif %}
+
+---
+
+## Validation
+
+```
+python cli/mda.py test --triples
+python cli/mda.py report --format yaml
+```
+
+{% if successor_names %}
+## What's Next
+
+After completing this step, proceed to: **{{ successor_names[0] }}**
+{% endif %}

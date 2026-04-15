@@ -200,6 +200,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     jobaid_sub.add_parser("list", help="List all job aids in the process")
 
+    # --- Skills ---
+    skills_parser = subparsers.add_parser("skills", help="Generate step-level skills from triples")
+    skills_sub = skills_parser.add_subparsers(dest="skills_command")
+    skills_gen = skills_sub.add_parser("generate", help="Generate a SKILL.md per BPMN step")
+    skills_gen.add_argument("--step", help="Generate for one specific step (capsule ID or name)")
+    skills_gen.add_argument("--output", type=Path, help="Output directory (default: .claude/skills/)")
+
     # --- Documentation ---
     docs_parser = subparsers.add_parser("docs", help="Generate and serve process documentation")
     docs_sub = docs_parser.add_subparsers(dest="docs_command")
@@ -345,6 +352,10 @@ def main():
             from commands.jobaid_cmd import run_jobaid
 
             run_jobaid(args, config)
+        elif args.command == "skills":
+            from commands.skills_cmd import run_skills
+
+            run_skills(args, config)
         else:
             parser.print_help()
             sys.exit(1)
