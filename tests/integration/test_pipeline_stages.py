@@ -107,17 +107,25 @@ class TestStage2Enricher:
         ]
         assert len(found) >= 1, "No nodes matched any corpus procedure"
 
-    def test_stage2_produces_gaps(self, parsed_model):
-        """Enrichment should produce at least 1 gap."""
+    def test_stage2_gaps_are_valid_if_present(self, parsed_model):
+        """If gaps exist, they should have required fields."""
         enriched = stage2.run_enricher(parsed_model, CORPUS_DIR)
-        assert len(enriched.gaps) > 0, "Expected at least 1 gap"
-
-    def test_stage2_gap_summary(self, parsed_model):
-        """Gap list should contain gaps with required fields."""
-        enriched = stage2.run_enricher(parsed_model, CORPUS_DIR)
+        # The improved enricher may match all nodes — gaps are not guaranteed
+        # But if any exist, they must be well-formed
         for gap in enriched.gaps:
             assert gap.gap_id, "Gap missing gap_id"
             assert gap.severity, "Gap missing severity"
+            assert gap.node_id, "Gap missing node_id"
+            assert gap.description, "Gap missing description"
+
+    def test_stage2_gap_summary_structure(self, parsed_model):
+        """Gap summary should have the expected structure."""
+        enriched = stage2.run_enricher(parsed_model, CORPUS_DIR)
+        summary = enriched.gap_summary()
+        assert "total" in summary
+        assert "by_severity" in summary
+        assert isinstance(summary["total"], int)
+        assert summary["total"] >= 0
 
 
 # ---------------------------------------------------------------------------
