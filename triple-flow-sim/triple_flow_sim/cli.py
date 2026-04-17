@@ -17,6 +17,9 @@ from triple_flow_sim import TAXONOMY_VERSION, __version__
 from triple_flow_sim.components.c01_loader import TripleLoader
 from triple_flow_sim.components.c02_inventory import TripleInventory
 from triple_flow_sim.components.c03_graph import JourneyGraph
+from triple_flow_sim.components.c04_static_handoff.checker import (
+    StaticHandoffChecker,
+)
 from triple_flow_sim.components.c11_classifier import FindingClassifier
 from triple_flow_sim.components.c12_store import FindingStore
 from triple_flow_sim.config import load_config
@@ -156,6 +159,141 @@ def inventory(corpus_config: Path, bpmn: Path, out: Path, log_level: str):
     click.echo(f"Reports:           {run_dir}")
     click.echo(f"{'=' * 60}\n")
 
+    return 0
+
+
+@cli.command()
+@click.option(
+    "--corpus-config",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to loader config YAML",
+)
+@click.option(
+    "--bpmn",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to BPMN 2.0 XML file (required for static handoff checks)",
+)
+@click.option(
+    "--out",
+    type=click.Path(path_type=Path),
+    default=Path("./reports"),
+    help="Output directory for reports and findings.db",
+)
+@click.option(
+    "--log-level",
+    default="INFO",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]),
+)
+def static(corpus_config: Path, bpmn: Path, out: Path, log_level: str):
+    """Run inventory + Phase 2 static handoff checker.
+
+    Emits all Phase 1 inventory findings plus Phase 2 C1-C6 pair-check and
+    G1-G3 gateway-check findings.
+    """
+    setup_logging(log_level)
+    log = get_logger("cli.static")
+
+    run_id = (
+        datetime.utcnow().strftime("%Y%m%dT%H%M%S") + "-" + str(uuid4())[:8]
+    )
+    run_dir = Path(out) / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Load triples
+    config = load_config(Path(corpus_config))
+    loader = TripleLoader(config)
+    triple_set, load_report = loader.load()
+    src = config.get("source.path") or config.get("source.ssh_url") or "?"
+    log.info(f"Loaded {len(triple_set)} triples from {src}")
+
+    # 2. Build graph
+    graph = JourneyGraph.from_bpmn_file(Path(bpmn), triple_set)
+    bpmn_hash = graph.bpmn_data.source_hash
+    log.info(
+        f"Graph built: {len(graph.start_events())} starts, "
+        f"{len(graph.end_events())} ends, "
+        f"{len(graph.pairs_to_check())} edges"
+    )
+
+    # 3. Start run in store
+    db_path = run_dir / "findings.db"
+    store = FindingStore(db_path)
+    store.start_run(
+        run_id=run_id,
+        corpus_version_hash=triple_set.corpus_version_hash,
+        bpmn_version_hash=bpmn_hash,
+        generator="static_handoff",
+        simulator_version=__version__,
+        taxonomy_version=TAXONOMY_VERSION,
+        config=config.to_dict(),
+    )
+
+    # 4. Run inventory (Phase 1) + Phase 2 graph-level detections
+    inv = TripleInventory(triple_set, graph=graph)
+    inv_report = inv.run()
+
+    extra_detections = []
+    extra_detections.extend(graph.derive_topology_detections())
+    extra_detections.extend(graph.cross_validate_against_derived())
+    extra_detections.extend(graph.find_unbounded_loops())
+
+    # 5. Run static handoff checker
+    checker = StaticHandoffChecker(graph)
+    check_report = checker.check_all()
+    log.info(
+        f"Static checker: {check_report.pairs_checked} pairs, "
+        f"{check_report.gateways_checked} gateways"
+    )
+
+    all_detections = (
+        list(inv_report.raw_detections) + extra_detections
+        + check_report.all_detections()
+    )
+    log.info(
+        f"Total detections: {len(all_detections)} "
+        f"(inventory={len(inv_report.raw_detections)}, "
+        f"graph={len(extra_detections)}, "
+        f"static={len(check_report.all_detections())})"
+    )
+
+    # 6. Classify + emit
+    classifier = FindingClassifier(strict=False)
+    findings = []
+    for det in all_detections:
+        try:
+            finding = classifier.classify(det, run_id)
+            store.emit_finding(finding, run_id)
+            findings.append(finding)
+        except Exception as e:  # noqa: BLE001
+            log.error(f"Failed to classify detection {det.signal_type}: {e}")
+
+    store.complete_run(
+        run_id,
+        metrics={
+            "total_triples": inv_report.total_triples,
+            "total_findings": len(findings),
+            "pairs_checked": check_report.pairs_checked,
+            "gateways_checked": check_report.gateways_checked,
+        },
+    )
+    store.close()
+
+    # 7. Write reports (reuse inventory renderer — full static report in Phase 4)
+    paths = write_reports(inv_report, findings, run_id, run_dir)
+    log.info(
+        f"Reports written: {paths['markdown_path']} | {paths['json_path']}"
+    )
+
+    click.echo(f"\n{'=' * 60}")
+    click.echo(f"Run ID:            {run_id}")
+    click.echo(f"Triples loaded:    {len(triple_set)}")
+    click.echo(f"Pairs checked:     {check_report.pairs_checked}")
+    click.echo(f"Gateways checked:  {check_report.gateways_checked}")
+    click.echo(f"Findings emitted:  {len(findings)}")
+    click.echo(f"Reports:           {run_dir}")
+    click.echo(f"{'=' * 60}\n")
     return 0
 
 

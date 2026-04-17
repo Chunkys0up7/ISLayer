@@ -153,3 +153,66 @@ rules:
       Path A: {path_a} (written by {writer_a})
       Path B: {path_b} (read by {reader_b})
       Similarity: {similarity_score}
+
+  # --- Phase 2 c04 Static Handoff Checker signals ---------------------------
+  type_mismatch:
+    defect_class: type_mismatch
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Type mismatch on '{path}': producer={observed_type}, consumer={expected_type}"
+    detail_template: |
+      Producer writes path '{path}' with type {observed_type} but consumer expects {expected_type}.
+
+  handoff_format_mismatch:
+    defect_class: handoff_format_mismatch
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Handoff format mismatch on '{path}'"
+    detail_template: |
+      Producer and consumer assertions on '{path}' are contradictory (symbolic verdict={verdict}).
+      Producer: {producer_assertion}
+      Consumer: {consumer_assertion}
+
+  handoff_implicit_setup:
+    defect_class: handoff_implicit_setup
+    layer: PIM
+    severity: correctness
+    confidence: medium
+    summary_template: "Implicit setup required for '{path}'"
+    detail_template: |
+      Consumer depends on '{path}' but it is not produced by any upstream triple.
+      Evidence: {evidence_source}
+
+  handoff_naming_drift:
+    defect_class: handoff_naming_drift
+    layer: PIM
+    severity: cosmetic
+    confidence: low
+    summary_template: "Naming drift: producer '{path_a}' vs consumer '{path_b}'"
+    detail_template: |
+      Consumer reads '{path_b}' while producer writes '{path_a}' — same normalized form.
+      Writer: {writer_a}
+      Reader: {reader_b}
+
+  predicate_non_partitioning:
+    defect_class: predicate_non_partitioning
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Gateway {primary_triple_id} predicates overlap ({edge_a} vs {edge_b})"
+    detail_template: |
+      Exclusive gateway branches must be mutually exclusive.
+      Edge A: {edge_a} -> {expression_a}
+      Edge B: {edge_b} -> {expression_b}
+
+  branch_misdirection:
+    defect_class: branch_misdirection
+    layer: PIM
+    severity: correctness
+    confidence: medium
+    summary_template: "Gateway {primary_triple_id} has no default branch"
+    detail_template: |
+      Gateway has {predicate_count} branch predicates and no is_default=True branch.
+      Reason: {reason}

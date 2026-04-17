@@ -14,6 +14,11 @@ from triple_flow_sim.evaluator.ast_nodes import (
     PathRef,
 )
 from triple_flow_sim.evaluator.parser import ExpressionEvaluator, ParseResult
+from triple_flow_sim.evaluator.symbolic import (
+    SymbolicEvaluator,
+    SymbolicResult,
+    SymbolicVerdict,
+)
 
 __all__ = [
     "ExpressionEvaluator",
@@ -27,4 +32,7 @@ __all__ = [
     "InOp",
     "FuncCall",
     "ExprNode",
+    "SymbolicEvaluator",
+    "SymbolicResult",
+    "SymbolicVerdict",
 ]

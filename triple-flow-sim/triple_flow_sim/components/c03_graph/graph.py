@@ -35,6 +35,15 @@ from triple_flow_sim.components.c03_graph.bpmn_parser import (
     parse_bpmn,
 )
 from triple_flow_sim.components.c03_graph.critical_path import compute_critical_path
+from triple_flow_sim.components.c03_graph.cross_validation import cross_validate
+from triple_flow_sim.components.c03_graph.derived_topology import (
+    build_derived_topology,
+    derive_detections,
+)
+from triple_flow_sim.components.c03_graph.loop_detection import (
+    detect_unbounded_loops,
+    find_loops,
+)
 
 
 class JourneyGraph:
@@ -237,6 +246,31 @@ class JourneyGraph:
 
     def is_on_critical_path(self, node_id: str) -> bool:
         return node_id in self._critical_path
+
+    # ------------------------------------------------------------------
+    # Phase 2 additions: derived topology, cross-validation, loops (§B4, §B5)
+    # ------------------------------------------------------------------
+    def get_derived_topology(self) -> nx.DiGraph:
+        """Return the triple-contract-derived topology (producer → consumer)."""
+        return build_derived_topology(self._triples)
+
+    def derive_topology_detections(self) -> list[RawDetection]:
+        """Detections visible from the derived topology alone
+        (missing producers, self-references)."""
+        return derive_detections(self._triples)
+
+    def cross_validate_against_derived(self) -> list[RawDetection]:
+        """Compare BPMN edges to derived-topology edges (§B5)."""
+        derived = self.get_derived_topology()
+        return cross_validate(self, derived)
+
+    def find_unbounded_loops(self) -> list[RawDetection]:
+        """Emit detections for every simple cycle without an exit gateway."""
+        return detect_unbounded_loops(self._nx, self._triples)
+
+    def all_cycles(self) -> list[list[str]]:
+        """Raw list of simple cycles (node-id lists)."""
+        return find_loops(self._nx)
 
     # ------------------------------------------------------------------
     # Properties

@@ -197,3 +197,42 @@ class ExpressionEvaluator:
             )
         except Exception as e:  # noqa: BLE001 — wrap any transformer/other failure
             return ParseResult(ok=False, error=f"Parse failed: {e}")
+
+    def evaluate_symbolic(
+        self, producer_expr: str, consumer_expr: str
+    ):
+        """Parse producer and consumer strings, then symbolically compare.
+
+        If either expression fails to parse, returns a SymbolicResult with
+        verdict=UNDETERMINED and a descriptive reason (never raises).
+
+        Spec reference: files/04-static-handoff-checker.md §B4 (symbolic mode).
+        """
+        # Local import to avoid circular dependency at module import time.
+        from .symbolic import SymbolicEvaluator, SymbolicResult, SymbolicVerdict
+
+        if producer_expr is None or not producer_expr.strip():
+            return SymbolicResult(
+                verdict=SymbolicVerdict.UNDETERMINED,
+                reason="empty producer expression",
+            )
+        if consumer_expr is None or not consumer_expr.strip():
+            return SymbolicResult(
+                verdict=SymbolicVerdict.UNDETERMINED,
+                reason="empty consumer expression",
+            )
+        try:
+            p_ast = self.parse(producer_expr)
+        except Exception as e:  # noqa: BLE001
+            return SymbolicResult(
+                verdict=SymbolicVerdict.UNDETERMINED,
+                reason=f"producer expression did not parse: {e}",
+            )
+        try:
+            c_ast = self.parse(consumer_expr)
+        except Exception as e:  # noqa: BLE001
+            return SymbolicResult(
+                verdict=SymbolicVerdict.UNDETERMINED,
+                reason=f"consumer expression did not parse: {e}",
+            )
+        return SymbolicEvaluator().compare(p_ast, c_ast)
