@@ -1,0 +1,28 @@
+triple_id: S07-EMPTY-CONTENT
+version: "1.0"
+bpmn_node_id: EmptyContentNode
+bpmn_node_type: task
+cim:
+  intent: "Task with no enriched content."
+  regulatory_refs: []
+  business_rules: []
+pim:
+  preconditions:
+    - path: journey.processed
+      predicate: exists
+      type: boolean
+  postconditions:
+    - path: journey.empty_content_processed
+      predicate: exists
+      type: boolean
+  obligations_opened: []
+  obligations_closed: []
+  state_reads:
+    - path: journey.processed
+      type: boolean
+  state_writes:
+    - path: journey.empty_content_processed
+      type: boolean
+psm:
+  enriched_content: []
+  tool_bindings: []

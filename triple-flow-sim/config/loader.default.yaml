@@ -1,0 +1,41 @@
+# Default loader configuration.
+#
+# Spec reference: files/01-triple-loader.md §Inputs.
+#
+# source_format options:
+#   mda_triple_dir    — MDA project format (dir per triple with .cap.md/.intent.md/.contract.md)
+#   native_yaml       — One YAML file per triple conforming to files/triple-schema.md
+#   native_json       — Same as native_yaml but JSON
+#
+# source.type options:
+#   local             — source.path is a filesystem path
+#   git               — source.ssh_url (or https_url) is cloned into a tempdir
+
+source_format: mda_triple_dir
+
+source:
+  type: local
+  path: ./examples
+
+# When source.type=git
+# source:
+#   type: git
+#   ssh_url: git@bitbucket.org:team/triples.git
+#   branch: main
+#   subdir: triples/
+
+# Optional overrides for field mapping (used by adapters)
+field_mapping: {}
+
+# How to extract PSM content chunks from capsule bodies
+content_chunk_extraction:
+  by_section: true        # Split at H2 markdown headings
+
+# Strict mode: if true, unmappable fields raise; if false, preserved under _raw
+strict_mode: false
+
+# Paths (relative to source.path) to skip during directory walk
+ignore_paths:
+  - .git
+  - .cache
+  - _manifest.json

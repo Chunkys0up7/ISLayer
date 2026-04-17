@@ -1,0 +1,23 @@
+triple_id: S03-END
+version: "1.0"
+bpmn_node_id: EndNode
+bpmn_node_type: end_event
+cim:
+  intent: "Complete the journey."
+  regulatory_refs: []
+  business_rules: []
+pim:
+  preconditions:
+    - path: journey.processed
+      predicate: exists
+      type: boolean
+  postconditions: []
+  obligations_opened: []
+  obligations_closed: []
+  state_reads:
+    - path: journey.processed
+      type: boolean
+  state_writes: []
+psm:
+  enriched_content: []
+  tool_bindings: []

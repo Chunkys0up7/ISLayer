@@ -1,0 +1,155 @@
+# Classifier rules: signal_type -> defect_class/layer/severity mapping.
+# Spec reference: files/11-finding-classifier.md
+# Phase 1 scope: Inventory signals only (component 02).
+
+taxonomy_version: "1.0.0"
+
+rules:
+  missing_identity_field:
+    defect_class: identity_incomplete
+    layer: "N/A"
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} missing identity field(s): {missing_fields}"
+    detail_template: |
+      Identity fields are required by invariant I1 (files/triple-schema.md).
+      Missing: {missing_fields}
+      Source path: {source_path}
+      This triple is excluded from downstream simulation.
+
+  missing_layer:
+    defect_class: layer_missing
+    layer: "{layer_name}"  # resolved from detector_context
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} is missing the {layer_name} layer"
+    detail_template: |
+      Invariant I2 (files/triple-schema.md) requires cim, pim, and psm layers.
+      Missing layer: {layer_name}
+
+  empty_or_multi_sentence_intent:
+    defect_class: content_missing
+    layer: CIM
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} has empty or non-single-sentence cim.intent"
+    detail_template: |
+      Invariant I3 (files/triple-schema.md) requires cim.intent to be a single sentence.
+      Observed: {observed_intent}
+
+  missing_contract_field:
+    defect_class: contract_missing
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} missing contract field: {field_name}"
+    detail_template: |
+      Invariant I4 (files/triple-schema.md) requires pim.preconditions, pim.postconditions,
+      pim.state_reads, and pim.state_writes to be declared (may be empty lists but must exist).
+      Missing: {field_name}
+      This triple is excluded from downstream simulation.
+
+  gateway_missing_predicates:
+    defect_class: evaluability_gap
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Gateway triple {primary_triple_id} lacks pim.decision_predicates"
+    detail_template: |
+      Invariant I5 (files/triple-schema.md) requires gateways to declare decision_predicates.
+      bpmn_node_type: {bpmn_node_type}
+
+  orphan_obligation:
+    defect_class: orphan_obligation
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Obligation {obligation_id} opened by {primary_triple_id} but never closed"
+    detail_template: |
+      Invariant I6 (files/triple-schema.md) requires every opened obligation to be closed
+      on some path or explicitly marked exits_journey=true.
+      Opened by: {primary_triple_id}
+      Obligation: {obligation_id}
+      Description: {obligation_description}
+
+  state_flow_gap:
+    defect_class: state_flow_gap
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} reads '{path}' which no upstream triple writes"
+    detail_template: |
+      Invariant I7 (files/triple-schema.md) requires read paths to be written by some
+      upstream triple reachable in the journey graph.
+      Read path: {path}
+      Reader: {primary_triple_id}
+
+  empty_content:
+    defect_class: content_missing
+    layer: PSM
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} has empty psm.enriched_content"
+    detail_template: |
+      Invariant I8 (files/triple-schema.md) requires task and gateway nodes to have non-empty
+      enriched_content.
+      bpmn_node_type: {bpmn_node_type}
+
+  unparseable_predicate:
+    defect_class: evaluability_gap
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Predicate unparseable on edge {bpmn_edge_id}: {parse_error}"
+    detail_template: |
+      Invariant I9 (files/triple-schema.md) requires decision_predicates to be parseable
+      by the expression evaluator.
+      Expression: {expression}
+      Error: {parse_error}
+      Gateway: {primary_triple_id}
+
+  unresolved_regulatory_ref:
+    defect_class: regulatory_orphan
+    layer: CIM
+    severity: correctness
+    confidence: high
+    summary_template: "Regulatory ref '{citation}' in {primary_triple_id} not declared in cim.regulatory_refs"
+    detail_template: |
+      Invariant I10 (files/triple-schema.md) requires every obligation's regulatory_ref
+      to resolve to an entry in cim.regulatory_refs.
+      Obligation: {obligation_id}
+      Unresolved ref: {citation}
+
+  orphan_triple:
+    defect_class: orphan_triple
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "Triple {primary_triple_id} is not reachable from any start event"
+    detail_template: |
+      This triple is bound to BPMN node {bpmn_node_id} but that node is unreachable
+      from any start event in the journey graph.
+
+  orphan_bpmn_node:
+    defect_class: orphan_triple
+    layer: PIM
+    severity: correctness
+    confidence: medium
+    summary_template: "BPMN node {bpmn_node_id} has no bound triple"
+    detail_template: |
+      The BPMN graph contains a node with no triple in the corpus that references it via
+      bpmn_node_id. Either the triple is missing, or the BPMN has been updated without
+      triple authoring.
+
+  naming_drift_suspect:
+    defect_class: handoff_naming_drift
+    layer: PIM
+    severity: cosmetic
+    confidence: low
+    summary_template: "Possible naming drift: {path_a} vs {path_b}"
+    detail_template: |
+      Two state paths appear semantically related but are syntactically different.
+      This may indicate handoff naming drift where producer and consumer disagree on spelling.
+      Path A: {path_a} (written by {writer_a})
+      Path B: {path_b} (read by {reader_b})
+      Similarity: {similarity_score}

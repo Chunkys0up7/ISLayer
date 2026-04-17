@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="simple_seeded_def" targetNamespace="http://example.org/simple_seeded">
+  <bpmn:process id="Process_Seeded" isExecutable="true">
+    <bpmn:startEvent id="StartNode" name="Begin">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="TaskNode" name="Process">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="EmptyIntentNode" name="EmptyIntent">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="MissingPostNode" name="MissingPost">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GatewayNoPredsNode" name="GatewayNoPreds">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="EmptyContentNode" name="EmptyContent">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="OrphanReadNode" name="OrphanRead">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndNode" name="Complete">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartNode" targetRef="TaskNode"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="TaskNode" targetRef="EmptyIntentNode"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="EmptyIntentNode" targetRef="MissingPostNode"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="MissingPostNode" targetRef="GatewayNoPredsNode"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="GatewayNoPredsNode" targetRef="EmptyContentNode"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="EmptyContentNode" targetRef="OrphanReadNode"/>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="OrphanReadNode" targetRef="EndNode"/>
+  </bpmn:process>
+</bpmn:definitions>

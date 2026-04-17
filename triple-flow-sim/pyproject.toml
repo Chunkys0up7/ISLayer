@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "triple_flow_sim"
+version = "0.1.0"
+description = "Diagnostic simulator for inter-triple handoffs in MDA Intent Layer processes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Triple Flow Simulator Team" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = [
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "networkx>=3.0",
+    "click>=8.0",
+    "lark>=1.1",
+    "gitpython>=3.1",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+triple_flow_sim = "triple_flow_sim.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["triple_flow_sim*"]
+
+[tool.setuptools.package-data]
+triple_flow_sim = [
+    "components/c11_classifier/rules.yaml",
+    "components/c12_store/schema.sql",
+    "evaluator/grammar.lark",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

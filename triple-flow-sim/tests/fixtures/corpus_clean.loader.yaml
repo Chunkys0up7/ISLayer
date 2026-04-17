@@ -1,0 +1,6 @@
+source_format: native_yaml
+source:
+  type: local
+  path: corpus_clean
+ignore_paths: ["README.md"]
+strict_mode: false

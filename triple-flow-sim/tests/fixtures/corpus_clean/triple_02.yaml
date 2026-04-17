@@ -1,0 +1,32 @@
+triple_id: T02-TASK
+version: "1.0"
+bpmn_node_id: TaskNode
+bpmn_node_type: task
+cim:
+  intent: "Process the journey."
+  regulatory_refs: []
+  business_rules: []
+pim:
+  preconditions:
+    - path: journey.started
+      predicate: exists
+      type: boolean
+  postconditions:
+    - path: journey.processed
+      predicate: exists
+      type: boolean
+  obligations_opened: []
+  obligations_closed: []
+  state_reads:
+    - path: journey.started
+      type: boolean
+  state_writes:
+    - path: journey.processed
+      type: boolean
+psm:
+  enriched_content:
+    - chunk_id: T02-TASK:overview
+      source_document: "fixture://clean/02"
+      content_type: knowledge
+      text: "Process the started journey."
+  tool_bindings: []

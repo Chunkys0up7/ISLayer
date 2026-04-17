@@ -1,0 +1,27 @@
+triple_id: S05-MISSING-POST
+version: "1.0"
+bpmn_node_id: MissingPostNode
+bpmn_node_type: task
+cim:
+  intent: "Do something with missing postconditions."
+  regulatory_refs: []
+  business_rules: []
+pim:
+  preconditions:
+    - path: journey.processed
+      predicate: exists
+      type: boolean
+  # postconditions intentionally omitted — triggers I4 missing_contract_field
+  obligations_opened: []
+  obligations_closed: []
+  state_reads:
+    - path: journey.processed
+      type: boolean
+  state_writes: []
+psm:
+  enriched_content:
+    - chunk_id: S05:overview
+      source_document: "fixture://seeded/05"
+      content_type: knowledge
+      text: "Missing-postconditions task."
+  tool_bindings: []

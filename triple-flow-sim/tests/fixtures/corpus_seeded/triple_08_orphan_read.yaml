@@ -1,0 +1,32 @@
+triple_id: S08-ORPHAN-READ
+version: "1.0"
+bpmn_node_id: OrphanReadNode
+bpmn_node_type: task
+cim:
+  intent: "Task that reads an unwritten path."
+  regulatory_refs: []
+  business_rules: []
+pim:
+  preconditions:
+    - path: some.unwritten.path
+      predicate: exists
+      type: boolean
+  postconditions:
+    - path: journey.orphan_read_done
+      predicate: exists
+      type: boolean
+  obligations_opened: []
+  obligations_closed: []
+  state_reads:
+    - path: some.unwritten.path
+      type: boolean
+  state_writes:
+    - path: journey.orphan_read_done
+      type: boolean
+psm:
+  enriched_content:
+    - chunk_id: S08:overview
+      source_document: "fixture://seeded/08"
+      content_type: knowledge
+      text: "Reads a path nothing writes."
+  tool_bindings: []

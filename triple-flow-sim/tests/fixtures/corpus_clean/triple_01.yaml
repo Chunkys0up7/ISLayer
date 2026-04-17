@@ -1,0 +1,27 @@
+triple_id: T01-START
+version: "1.0"
+bpmn_node_id: StartNode
+bpmn_node_type: start_event
+cim:
+  intent: "Start the journey."
+  regulatory_refs: []
+  business_rules: []
+pim:
+  preconditions: []
+  postconditions:
+    - path: journey.started
+      predicate: exists
+      type: boolean
+  obligations_opened: []
+  obligations_closed: []
+  state_reads: []
+  state_writes:
+    - path: journey.started
+      type: boolean
+psm:
+  enriched_content:
+    - chunk_id: T01-START:overview
+      source_document: "fixture://clean/01"
+      content_type: knowledge
+      text: "The journey begins here."
+  tool_bindings: []

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="simple_def" targetNamespace="http://example.org/simple">
+  <bpmn:process id="Process_Simple" isExecutable="true">
+    <bpmn:startEvent id="StartNode" name="Begin">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="TaskNode" name="Process">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndNode" name="Complete">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartNode" targetRef="TaskNode"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="TaskNode" targetRef="EndNode"/>
+  </bpmn:process>
+</bpmn:definitions>

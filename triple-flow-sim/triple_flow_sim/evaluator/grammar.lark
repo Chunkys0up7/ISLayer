@@ -1,0 +1,63 @@
+// Expression grammar for triple decision predicates.
+// Spec reference: files/04-static-handoff-checker.md §B4
+//
+// Phase 1 scope: parse-only. Evaluation comes in later phases.
+
+start: expr
+
+?expr: or_expr
+
+or_expr: and_expr (OR and_expr)*
+and_expr: not_expr (AND not_expr)*
+
+?not_expr: NOT not_expr       -> not_op
+         | membership
+         | compare
+
+// Membership: "x in [...]" or "x not in [...]"
+membership: addition IN list_literal         -> in_op
+          | addition NOT IN list_literal     -> not_in_op
+
+compare: addition (COMP_OP addition)?
+
+?addition: atom
+
+?atom: func_call
+     | path
+     | literal
+     | list_literal
+     | "(" expr ")"
+
+func_call: NAME "(" [args] ")"
+args: arg ("," arg)*
+?arg: NAME "=" expr    -> kwarg
+    | expr             -> posarg
+
+path: NAME ("." NAME)*
+
+literal: STRING             -> str_lit
+       | SIGNED_NUMBER      -> num_lit
+       | TRUE               -> true_lit
+       | FALSE              -> false_lit
+       | NULL               -> null_lit
+
+list_literal: "[" [expr ("," expr)*] "]"
+
+// Keywords (terminals so they don't collide with NAME).
+// Use a trailing boundary pattern so "not" doesn't match inside "notes", etc.
+AND: /and\b/
+OR: /or\b/
+NOT: /not\b/
+IN: /in\b/
+TRUE: /true\b/
+FALSE: /false\b/
+NULL: /null\b/
+
+COMP_OP: "==" | "!=" | "<=" | ">=" | "<" | ">"
+
+NAME: /(?!(?:and|or|not|in|true|false|null)\b)[a-zA-Z_][a-zA-Z0-9_]*/
+STRING: /"(?:[^"\\]|\\.)*"/ | /'(?:[^'\\]|\\.)*'/
+
+%import common.SIGNED_NUMBER
+%import common.WS
+%ignore WS
