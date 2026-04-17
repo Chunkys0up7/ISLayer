@@ -216,3 +216,76 @@ rules:
     detail_template: |
       Gateway has {predicate_count} branch predicates and no is_default=True branch.
       Reason: {reason}
+
+  # --- Phase 3 signals (grounded + isolation + boundary) --------------------
+  handoff_carried_by_external_context:
+    defect_class: handoff_carried_by_external_context
+    layer: PSM
+    severity: correctness
+    confidence: high
+    summary_template: "{primary_triple_id} relies on context not in its declared contract"
+    detail_template: |
+      Level 1 (full content) produced the declared outputs, but Level 2
+      (declared-only state) did not. The triple is riding on enriched content
+      that the contract does not guarantee.
+      Missing without content: {missing_without_content}
+      Level comparison: {level_comparison}
+
+  output_over_promise:
+    defect_class: output_over_promise
+    layer: PIM
+    severity: correctness
+    confidence: medium
+    summary_template: "{primary_triple_id} produced undeclared output paths"
+    detail_template: |
+      The step wrote paths the contract does not declare:
+      {extra_paths}
+
+  output_under_declaration:
+    defect_class: output_under_declaration
+    layer: PIM
+    severity: correctness
+    confidence: medium
+    summary_template: "{primary_triple_id} failed to produce declared writes"
+    detail_template: |
+      The step did not produce paths it declares it will write:
+      {missing_paths}
+
+  llm_refusal:
+    defect_class: content_missing
+    layer: PSM
+    severity: correctness
+    confidence: low
+    summary_template: "LLM refused to execute {primary_triple_id}"
+    detail_template: |
+      The LLM refused to complete the step. Refusals: {refusals}
+      This typically indicates a prompt-safety mismatch or missing content.
+
+  derived_producer_missing:
+    defect_class: state_flow_gap
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "{primary_triple_id} references missing producer '{missing_source_triple}'"
+    detail_template: |
+      Precondition on path '{path}' names source_triple '{missing_source_triple}'
+      but no such triple exists in the corpus.
+
+  derived_self_reference:
+    defect_class: contract_missing
+    layer: PIM
+    severity: correctness
+    confidence: high
+    summary_template: "{primary_triple_id} names itself as source_triple for '{path}'"
+    detail_template: |
+      A triple cannot be its own producer. Fix the source_triple reference.
+
+  unbounded_loop:
+    defect_class: journey_stuck
+    layer: PIM
+    severity: correctness
+    confidence: medium
+    summary_template: "Potentially unbounded loop detected"
+    detail_template: |
+      The cycle {cycle_nodes} has no exclusive gateway with an edge leaving it.
+      Cannot prove termination.

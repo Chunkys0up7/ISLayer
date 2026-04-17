@@ -20,6 +20,11 @@ from triple_flow_sim.components.c03_graph import JourneyGraph
 from triple_flow_sim.components.c04_static_handoff.checker import (
     StaticHandoffChecker,
 )
+from triple_flow_sim.components.c05_llm import build_default_client
+from triple_flow_sim.components.c06_persona import PersonaGenerator
+from triple_flow_sim.components.c07_isolation import IsolationHarness
+from triple_flow_sim.components.c08_grounded import SequenceRunner
+from triple_flow_sim.components.c09_boundary import BranchBoundaryHarness
 from triple_flow_sim.components.c11_classifier import FindingClassifier
 from triple_flow_sim.components.c12_store import FindingStore
 from triple_flow_sim.config import load_config
@@ -292,6 +297,175 @@ def static(corpus_config: Path, bpmn: Path, out: Path, log_level: str):
     click.echo(f"Pairs checked:     {check_report.pairs_checked}")
     click.echo(f"Gateways checked:  {check_report.gateways_checked}")
     click.echo(f"Findings emitted:  {len(findings)}")
+    click.echo(f"Reports:           {run_dir}")
+    click.echo(f"{'=' * 60}\n")
+    return 0
+
+
+@cli.command()
+@click.option(
+    "--corpus-config",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--bpmn",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--out",
+    type=click.Path(path_type=Path),
+    default=Path("./reports"),
+)
+@click.option(
+    "--driver",
+    type=click.Choice(["fake", "anthropic", "auto"]),
+    default="fake",
+    help="LLM driver. 'fake' is deterministic and offline.",
+)
+@click.option(
+    "--seed", type=int, default=0,
+)
+@click.option(
+    "--calibration-only",
+    is_flag=True,
+    default=False,
+    help=(
+        "Run context isolation in calibration mode — record divergences "
+        "without emitting findings (Risk R4)."
+    ),
+)
+@click.option(
+    "--log-level",
+    default="INFO",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]),
+)
+def grounded(
+    corpus_config: Path,
+    bpmn: Path,
+    out: Path,
+    driver: str,
+    seed: int,
+    calibration_only: bool,
+    log_level: str,
+):
+    """Phase 3: run grounded execution + context isolation + boundary probes.
+
+    With --driver=fake (default) the run is deterministic and offline.
+    Real LLM drivers activate with --driver=anthropic when ANTHROPIC_API_KEY
+    is set.
+    """
+    setup_logging(log_level)
+    log = get_logger("cli.grounded")
+
+    run_id = (
+        datetime.utcnow().strftime("%Y%m%dT%H%M%S") + "-" + str(uuid4())[:8]
+    )
+    run_dir = Path(out) / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    config = load_config(Path(corpus_config))
+    loader = TripleLoader(config)
+    triple_set, load_report = loader.load()
+    graph = JourneyGraph.from_bpmn_file(Path(bpmn), triple_set)
+    bpmn_hash = graph.bpmn_data.source_hash
+    llm = build_default_client(driver=driver, seed=seed)
+    log.info(
+        f"Loaded {len(triple_set)} triples; driver={driver}; "
+        f"model={getattr(llm, 'model', '?')}"
+    )
+
+    db_path = run_dir / "findings.db"
+    store = FindingStore(db_path)
+    store.start_run(
+        run_id=run_id,
+        corpus_version_hash=triple_set.corpus_version_hash,
+        bpmn_version_hash=bpmn_hash,
+        generator="grounded_pair",
+        simulator_version=__version__,
+        taxonomy_version=TAXONOMY_VERSION,
+        config=config.to_dict(),
+    )
+
+    all_detections = []
+
+    # Phase 1/2 static findings so the grounded report is self-contained.
+    inv = TripleInventory(triple_set, graph=graph)
+    inv_report = inv.run()
+    all_detections.extend(inv_report.raw_detections)
+    all_detections.extend(graph.derive_topology_detections())
+    all_detections.extend(graph.cross_validate_against_derived())
+    all_detections.extend(graph.find_unbounded_loops())
+    static = StaticHandoffChecker(graph).check_all()
+    all_detections.extend(static.all_detections())
+
+    # Personas.
+    pg = PersonaGenerator(triple_set)
+    personas = pg.all(boundary_limit=2)
+
+    # Context isolation per triple, using the canonical persona state.
+    iso = IsolationHarness(
+        llm=llm, calibration_only=calibration_only, seed=seed
+    )
+    canonical = personas[0]
+    for triple in triple_set:
+        res = iso.run(triple, state=dict(canonical.seed_state))
+        all_detections.extend(res.detections)
+
+    # Sequence runs — one per persona.
+    for persona in personas:
+        trace, detections = SequenceRunner(
+            graph, llm=llm, seed=seed
+        ).run(
+            persona,
+            simulator_version=__version__,
+            taxonomy_version=TAXONOMY_VERSION,
+        )
+        all_detections.extend(detections)
+        log.info(
+            f"Sequence run persona={persona.persona_id} "
+            f"steps={trace.metrics.steps_executed} outcome={trace.outcome.value}"
+        )
+
+    # Branch boundary probes.
+    boundary = BranchBoundaryHarness(graph, llm=llm, seed=seed).probe_all()
+    for b in boundary:
+        all_detections.extend(b.detections)
+
+    # Classify + emit.
+    classifier = FindingClassifier(strict=False)
+    findings = []
+    for det in all_detections:
+        try:
+            finding = classifier.classify(det, run_id)
+            store.emit_finding(finding, run_id)
+            findings.append(finding)
+        except Exception as e:  # noqa: BLE001
+            log.error(f"Failed to classify detection {det.signal_type}: {e}")
+
+    store.complete_run(
+        run_id,
+        metrics={
+            "total_triples": inv_report.total_triples,
+            "total_findings": len(findings),
+            "personas": len(personas),
+            "boundary_gateways": len(boundary),
+        },
+    )
+    store.close()
+
+    paths = write_reports(inv_report, findings, run_id, run_dir)
+    log.info(
+        f"Reports written: {paths['markdown_path']} | {paths['json_path']}"
+    )
+
+    click.echo(f"\n{'=' * 60}")
+    click.echo(f"Run ID:            {run_id}")
+    click.echo(f"Driver:            {driver} (seed={seed})")
+    click.echo(f"Personas:          {len(personas)}")
+    click.echo(f"Findings emitted:  {len(findings)}")
+    click.echo(f"Calibration only:  {calibration_only}")
     click.echo(f"Reports:           {run_dir}")
     click.echo(f"{'=' * 60}\n")
     return 0
