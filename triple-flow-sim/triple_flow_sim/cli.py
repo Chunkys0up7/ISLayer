@@ -9,6 +9,7 @@ from __future__ import annotations
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 from uuid import uuid4
 
 import click
@@ -27,6 +28,7 @@ from triple_flow_sim.components.c08_grounded import SequenceRunner
 from triple_flow_sim.components.c09_boundary import BranchBoundaryHarness
 from triple_flow_sim.components.c11_classifier import FindingClassifier
 from triple_flow_sim.components.c12_store import FindingStore
+from triple_flow_sim.components.c13_reports import ReportBuilder
 from triple_flow_sim.config import load_config
 from triple_flow_sim.logging_setup import get_logger, setup_logging
 from triple_flow_sim.reports.inventory_report import write_reports
@@ -468,6 +470,54 @@ def grounded(
     click.echo(f"Calibration only:  {calibration_only}")
     click.echo(f"Reports:           {run_dir}")
     click.echo(f"{'=' * 60}\n")
+    return 0
+
+
+@cli.command()
+@click.option(
+    "--db",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to a findings.db SQLite file produced by a prior run.",
+)
+@click.option(
+    "--out",
+    type=click.Path(path_type=Path),
+    default=Path("./reports/summary"),
+    help="Output directory for backlog.md + heatmap.json.",
+)
+@click.option(
+    "--previous-db",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional: previous run's findings.db for regression comparison.",
+)
+def report(db: Path, out: Path, previous_db: Optional[Path]):
+    """Phase 4: render backlog, heatmap, regression delta, dossiers
+    from an existing findings.db."""
+    store = FindingStore(db)
+    findings = store.get_findings()
+    previous = None
+    if previous_db is not None and Path(previous_db).exists():
+        prev_store = FindingStore(Path(previous_db))
+        previous = prev_store.get_findings()
+        prev_store.close()
+    triple_ids = sorted(
+        {f.primary_triple_id for f in findings if f.primary_triple_id}
+    )
+    rb = ReportBuilder(Path(out))
+    paths = rb.write_all(
+        findings=findings,
+        previous_findings=previous,
+        triple_ids=triple_ids[:10],  # first 10 dossiers by default
+    )
+    store.close()
+    click.echo(f"Findings: {len(findings)}")
+    click.echo(f"Backlog:  {paths['backlog']}")
+    click.echo(f"Heatmap:  {paths['heatmap']}")
+    if "regression" in paths:
+        click.echo(f"Regression: {paths['regression']}")
+    click.echo(f"Dossiers: {len(triple_ids[:10])}")
     return 0
 
 

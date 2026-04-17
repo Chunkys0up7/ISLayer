@@ -330,6 +330,105 @@ class FindingStore:
         ).fetchall()
         return [self._row_to_finding(r) for r in rows]
 
+    # -------------------------------------------------- Phase 4 additions
+    def compute_blast_radius(
+        self, total_journeys: int, critical_path_node_ids: set[str]
+    ) -> None:
+        """Populate journeys_affected_count/pct and is_on_critical_path.
+
+        Phase 4 approximation: a finding affects one journey per
+        ``occurrence_count``, clamped to ``total_journeys``. Full
+        traversal-based counting will replace this when the sequence runner
+        records journeys per finding.
+        """
+        if total_journeys <= 0:
+            return
+        rows = self._conn.execute(
+            "SELECT finding_id, occurrence_count, bpmn_node_id FROM findings"
+        ).fetchall()
+        for row in rows:
+            count = min(row["occurrence_count"] or 1, total_journeys)
+            pct = (count / total_journeys) * 100.0
+            on_cp = 1 if (row["bpmn_node_id"] or "") in critical_path_node_ids else 0
+            self._conn.execute(
+                """
+                UPDATE findings
+                   SET journeys_affected_count = ?,
+                       journeys_affected_pct = ?,
+                       is_on_critical_path = ?
+                 WHERE finding_id = ?
+                """,
+                (count, pct, on_cp, row["finding_id"]),
+            )
+        self._conn.commit()
+
+    def transition_status(
+        self,
+        finding_id: str,
+        new_status: str,
+        suppression_reason: Optional[str] = None,
+    ) -> None:
+        """Lifecycle transition: new → triaged → accepted → suppressed/fixed/regressed."""
+        valid = {s.value for s in FindingStatus}
+        if new_status not in valid:
+            raise ValueError(f"invalid status {new_status!r}; must be one of {valid}")
+        self._conn.execute(
+            """
+            UPDATE findings
+               SET status = ?, suppression_reason = ?
+             WHERE finding_id = ?
+            """,
+            (new_status, suppression_reason, finding_id),
+        )
+        self._conn.commit()
+
+    def prune_runs(self, keep_last_n: int = 50) -> int:
+        """Retention policy: keep only the most recent N completed runs.
+
+        Deletes their orphaned finding_occurrences. Findings are retained
+        (they survive across runs by dedup) but occurrences older than the
+        cutoff are pruned.
+        """
+        if keep_last_n <= 0:
+            return 0
+        rows = self._conn.execute(
+            """
+            SELECT run_id FROM runs
+             ORDER BY COALESCE(completed_at, started_at) DESC
+             LIMIT -1 OFFSET ?
+            """,
+            (keep_last_n,),
+        ).fetchall()
+        to_delete = [r["run_id"] for r in rows]
+        if not to_delete:
+            return 0
+        placeholders = ",".join("?" for _ in to_delete)
+        self._conn.execute(
+            f"DELETE FROM finding_occurrences WHERE run_id IN ({placeholders})",
+            to_delete,
+        )
+        self._conn.commit()
+        return len(to_delete)
+
+    def detect_regressions(
+        self, current_run_id: str, previous_run_id: str
+    ) -> list[str]:
+        """Return finding_ids that were resolved in previous_run but are
+        present again in current_run — candidates for FindingStatus.REGRESSED.
+
+        Simple implementation: findings whose ``last_seen_run == current_run_id``
+        and status was ``fixed`` are flagged. Caller applies the status
+        transition.
+        """
+        rows = self._conn.execute(
+            """
+            SELECT finding_id FROM findings
+             WHERE last_seen_run = ? AND status = ?
+            """,
+            (current_run_id, FindingStatus.FIXED.value),
+        ).fetchall()
+        return [r["finding_id"] for r in rows]
+
     # ----------------------------------------------------------------- cleanup
     def close(self) -> None:
         try:
