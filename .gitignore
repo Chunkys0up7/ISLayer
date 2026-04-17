@@ -71,3 +71,7 @@ mkdocs.yml
 # Claude Code (keep skills, ignore local config)
 .claude/*
 !.claude/skills/
+
+# Spec distribution archives — canonical spec is the markdown in files/
+files.zip
+files/*.tar.gz
